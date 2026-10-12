@@ -1,0 +1,111 @@
+来源：https://arxiv.org/pdf/2204.01691
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Do As I Can, Not As I Say:
+Grounding Language in Robotic Affordances
+1 Michael Ahn∗, Anthony Brohan∗, Noah Brown∗, Yevgen Chebotar∗, Omar Cortes∗, Byron David∗,
+Chelsea Finn∗, Chuyuan Fu†, Keerthana Gopalakrishnan∗, Karol Hausman∗, Alex Herzog†,
+Daniel Ho†, Jasmine Hsu∗, Julian Ibarz∗, Brian Ichter∗, Alex Irpan∗, Eric Jang∗,
+Rosario Jauregui Ruano∗, Kyle Jeffrey∗, Sally Jesmonth∗, Nikhil J Joshi∗, Ryan Julian∗,
+Dmitry Kalashnikov∗, Yuheng Kuang∗, Kuang-Huei Lee∗, Sergey Levine∗, Yao Lu∗, Linda Luu∗,
+Carolina Parada∗, Peter Pastor†, Jornell Quiambao∗, Kanishka Rao∗, Jarek Rettinghouse∗,
+Diego Reyes∗, Pierre Sermanet∗, Nicolas Sievers∗, Clayton Tan∗, Alexander Toshev∗,
+Vincent Vanhoucke∗, Fei Xia∗, Ted Xiao∗, Peng Xu∗, Sichun Xu∗, Mengyuan Yan†, Andy Zeng∗
+∗Robotics at Google, †Everyday Robots
+Abstract: Large language models can encode a wealth of semantic knowledge
+about the world. Such knowledge could be extremely useful to robots aiming to act
+upon high-level, temporally extended instructions expressed in natural language.
+However, a signiﬁcant weakness of language models is that they lack real-world
+experience, which makes it difﬁcult to leverage them for decision making within
+a given embodiment. For example, asking a language model to describe how to
+clean a spill might result in a reasonable narrative, but it may not be applicable to
+a particular agent, such as a robot, that needs to perform this task in a particular
+environment. We propose to provide real-world grounding by means of pretrained
+skills, which are used to constrain the model to propose natural language actions
+that are both feasible and contextually appropriate. The robot can act as the lan-
+guage model’s “hands and eyes,” while the language model supplies high-level
+semantic knowledge about the task. We show how low-level skills can be com-
+bined with large language models so that the language model provides high-level
+knowledge about the procedures for performing complex and temporally extended
+instructions, while value functions associated with these skills provide the ground-
+ing necessary to connect this knowledge to a particular physical environment. We
+evaluate our method on a number of real-world robotic tasks, where we show
+the need for real-world grounding and that this approach is capable of complet-
+ing long-horizon, abstract, natural language instructions on a mobile manipulator.
+The project’s website, the video, and open sourced code in a tabletop domain can
+be found at say-can.github.io.
+Figure 1: LLMs have not interacted with their environment and observed the outcome of their responses, and
+thus are not grounded in the world. SayCan grounds LLMs via value functions of pretrained skills, allowing
+them to execute real-world, abstract, long-horizon commands on robots.
+1
+Introduction
+Recent progress in training large language models (LLMs) has led to systems that can generate
+complex text based on prompts, answer questions, or even engage in dialogue on a wide range of
+topics. These models absorb vast quantities of knowledge from text corpora mined from the web,
+1Authors listed in alphabetical order. Contributions in Appendix B.
+Corresponding emails: {ichter,xiafei,karolhausman}@google.com.
+arXiv:2204.01691v2  [cs.RO]  16 Aug 2022
+
+
+===== PDF 第 2 页 =====
+
+and we might wonder whether knowledge of everyday tasks that is encoded in such models can be
+used by robots to perform complex tasks in the real world. But how can embodied agents extract
+and harness the knowledge of LLMs for physically grounded tasks?
+This question poses a major challenge. LLMs are not grounded in the physical world and they
+do not observe the consequences of their generations on any physical process [1]. This can lead
+LLMs to not only make mistakes that seem unreasonable or humorous to people, but also to interpret
+instructions in ways that are nonsensical or unsafe for a particular physical situation. Figure 1 shows
+an example – a kitchen robot capable of executing skills such as “pick up the sponge” or ”go to the
+table” may be asked for help cleaning up a spill (“I spilled my drink, can you help?”). A language
+model may respond with a reasonable narrative that is not feasible or useful for the robot. “You
+could try using a vacuum cleaner” is impossible if there is no vacuum in the scene or if the robot is
+incapable of using one. With prompt engineering, a LLM may be capable of splitting the high-level
+instruction into sub-tasks, but it cannot do so without the context of what the robot is capable of
+given its abilities and the current state of the robot and the environment.
+Motivated by this example, we study the problem of how to extract the knowledge in LLMs for
+enabling an embodied agent, such as a robot, to follow high-level textual instructions. The robot
+is equipped with a repertoire of learned skills for “atomic” behaviors that are capable of low-level
+visuomotor control. We make use of the fact that, in addition to asking the LLM to simply interpret
+an instruction, we can use it to score the likelihood that an individual skill makes progress towards
+completing the high-level instruction. Then, if each skill has an affordance function that quantiﬁes
+how likely it is to succeed from the current state (such as a learned value function), its value can be
+used to weight the skill’s likelihood. In this way, the LLM describes the probability that each skill
+contributes to completing the instruction, and the affordance function describes the probability that
+each skill will succeed – combining the two provides the probability that each skill will perform the
+instruction successfully. The affordance functions make the LLM aware of the current scene, and
+constraining the completions to the skill descriptions makes the LLM aware of the robot’s capabil-
+ities. Furthermore, this combination results in a fully explainable sequence of steps that the robot
+will execute to accomplish an instruction – an interpretable plan that is expressed through language.
+Our method, SayCan, extracts and leverages the knowledge within LLMs in physically-grounded
+tasks. The LLM (Say) provides a task-grounding to determine useful actions for a high-level goal
+and the learned affordance functions (Can) provide a world-grounding to determine what is pos-
+sible to execute upon the plan. We use reinforcement learning (RL) as a way to learn language-
+conditioned value functions that provide affordances of what is possible in the world. We evaluate
+the proposed approach on 101 real-world robotic tasks that involve a mobile robot accomplishing
+a large set of language instructions in a real kitchen in a zero-shot fashion. Our experiments vali-
+date that SayCan can execute temporally-extended, abstract instructions. Grounding the LLM in the
+real-world via affordances nearly doubles the performance over the non-grounded baselines. Addi-
+tionally, by evaluating the performance of the system with different LLMs, we show that a robot’s
+performance can be improved simply by enhancing the underlying language model.
+2
+Preliminaries
+Large Language Models.
+Language models seek to model the probability p(W) of a text
+W = {w0, w1, w2, ..., wn}, a sequence of strings w. This is generally done through factorizing
+the probability via the chain rule to be p(W) = Πn
+j=0p(wj|w<j), such that each successive string
+is predicted from the previous. Recent breakthroughs initiated by neural network-based Attention
+architectures [2] have enabled efﬁcient scaling of so-called Large Language Models (LLMs). Such
+models include Transformers [2], BERT [3], T5 [4], GPT-3 [5], Gopher [6], LAMDA [7], FLAN [8],
+and PaLM [9], each showing increasingly large capacity (billions of parameters and terabytes of text)
+and subsequent ability to generalize across tasks.
+In this work, we utilize the vast semantic knowledge contained in LLMs to determine useful tasks
+for solving high-level instructions.
+Value functions and RL.
+Our goal is to be able to accurately predict whether a skill (given by a
+language command) is feasible at a current state. We use temporal-difference-based (TD) reinforce-
+ment learning to accomplish this goal. In particular, we deﬁne a Markov decision process (MDP)
+M = (S, A, P, R, γ), where S and A are state and action spaces, P : S × A × S →R+ is a
+state-transition probability function, R : S × A →R is a reward function and γ is a discount factor.
+2

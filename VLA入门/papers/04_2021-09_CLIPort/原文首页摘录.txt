@@ -1,0 +1,145 @@
+来源：https://arxiv.org/pdf/2109.12098
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+CLIPORT: What and Where Pathways
+for Robotic Manipulation
+Mohit Shridhar 1,† Lucas Manuelli 2
+Dieter Fox 1,2
+1University of Washington
+2NVIDIA
+mshr@cs.washington.edu
+lmanuelli@nvidia.com
+fox@cs.washington.edu
+cliport.github.io
+Abstract: How can we imbue robots with the ability to manipulate objects pre-
+cisely but also to reason about them in terms of abstract concepts? Recent works
+in manipulation have shown that end-to-end networks can learn dexterous skills
+that require precise spatial reasoning, but these methods often fail to generalize
+to new goals or quickly learn transferable concepts across tasks. In parallel, there
+has been great progress in learning generalizable semantic representations for vi-
+sion and language by training on large-scale internet data, however these repre-
+sentations lack the spatial understanding necessary for ﬁne-grained manipulation.
+To this end, we propose a framework that combines the best of both worlds: a
+two-stream architecture with semantic and spatial pathways for vision-based ma-
+nipulation. Speciﬁcally, we present CLIPORT, a language-conditioned imitation-
+learning agent that combines the broad semantic understanding (what) of CLIP [1]
+with the spatial precision (where) of Transporter [2]. Our end-to-end framework
+is capable of solving a variety of language-speciﬁed tabletop tasks from packing
+unseen objects to folding cloths, all without any explicit representations of object
+poses, instance segmentations, memory, symbolic states, or syntactic structures.
+Experiments in simulated and real-world settings show that our approach is data
+efﬁcient in few-shot settings and generalizes effectively to seen and unseen se-
+mantic concepts. We even learn one multi-task policy for 10 simulated and 9
+real-world tasks that is better or comparable to single-task policies.
+1
+Introduction
+Ask a person to “get a scoop of coffee beans” or “fold the cloth in half” and they can naturally take
+concepts like scoop or fold and ground them in concrete physical actions within an accuracy of a
+few centimeters. We humans do this intuitively, without explicit geometric or kinematic models of
+coffee beans or cloths. Moreover, we can generalize to a broad range of tasks and concepts from a
+minimal set of examples on what needs to be achieved. How can we imbue robots with this ability
+to efﬁciently ground abstract semantic concepts in precise spatial reasoning?
+Recently, a number of end-to-end frameworks have been proposed for vision-based manipulation
+[2, 3, 4, 5]. While these methods do not use any explicit representations of object poses, instance seg-
+mentations, or symbolic states, they can only replicate demonstrations with a narrow range of vari-
+ability and have no notion of the semantics underlying the tasks. Switching from packing red pens
+to blue pens involves collecting a new training set [2], or if using goal-conditioned policies, involves
+the user providing a goal-image from the scene [5, 6]. In realistic human-robot interaction settings,
+collecting additional demonstrations or providing goal-images is often infeasible and unscalable. A
+natural solution to both these problems is to condition policies with natural language. Language pro-
+vides an intuitive interface for specifying goals and also for implicitly transferring concepts across
+tasks. While language-grounding for manipulation has been explored in the past [7, 8, 9, 10], these
+pipelines are limited by object-centric representations that cannot handle granular or deformable ob-
+jects and often do not reason about perception and action in an integrated manner. In parallel, there
+has been great progress in learning models for visual representations [11, 12] and aligning represen-
+tations of vision and language [13, 14, 15] by training on large-scale internet data. However, these
+models lack a ﬁne-grained understanding on how to manipulate objects, i.e. physical affordances.
+†Work done partly while the author was a part-time intern at NVIDIA.
+5th Conference on Robot Learning (CoRL 2021), London, UK.
+arXiv:2109.12098v1  [cs.RO]  24 Sep 2021
+
+
+===== PDF 第 2 页 =====
+
+“align the rope from back 
+right corner to back left corner”
+“pack the yoshi ﬁgure 
+in the brown box”
+“pack all the blue and black sneaker 
+objects in the brown box”
+“put the brown block 
+on the blue and red blocks”
+“push the pile of purple blocks 
+into the green square”
+“move the red ring 
+to the middle of the stand”
+“pack the hexagon 
+in the brown box”
+“put the gray letter E in the 
+left letter E shape hole”
+“put the blue blocks 
+in a green bowl”
+“pack all the yellow and blue 
+blocks in the brown box”
+“pick all the cherries
+and put them in the box”
+“pack the scissors 
+in the brown box”
+“move the rook 
+one block forward”
+“fold the cloth 
+in half”
+“sweep the beans 
+into the blue zone”
+(a)
+(f)
+(l)
+(m)
+(n)
+(o)
+(g)
+(h)
+(i)
+(j)
+(b)
+(c)
+(d)
+(e)
+(k)
+Figure 1. Language-Conditioned Manipulation Tasks: CLIPORT is a broad framework applicable to a wide range of language-conditioned
+manipulation tasks in tabletop settings. We conduct large-scale experiments in Ravens [2] on 10 simulated tasks (a-j) with 1000s of unique
+instances per task. See Appendix A for challenges pertaining to each task. CLIPORT can even learn one multi-task model for all 10 tasks that
+achieves better or comparable performance to single-task models. Similarly, we demonstrate our approach on a Franka Panda manipulator with
+one multi-task model for 9 real-world tasks (k-o; only 5 shown) trained with just 179 image-action pairs.
+To this end, we propose the ﬁrst framework that combines the best of both worlds: end-to-end
+learning for ﬁne-grained manipulation with the multi-goal and multi-task generalization capabilities
+of vision-language grounding systems. We introduce a two-stream architecture for manipulation
+with semantic and spatial pathways broadly inspired by (or vaguely analogous to) the two-stream
+hypothesis in cognitive psychology [16, 17, 18]. Speciﬁcally, we present CLIPORT, a language-
+conditioned imitation-learning agent that integrates the semantic understanding (what) of CLIP [1]
+with the spatial precision (where) of Transporter [2]. Transporter has been applied to a wide range
+of rearragement tasks from industrial packing [2] to manipulating deformable objects [6]. The key
+insight of the approach is formulating tabletop manipulation as a series of pick-and-place affordance
+predictions, where the objective is to detect actions rather than detect objects and then learn a policy.
+This action-centric approach to perception [19] is data efﬁcient and effective at circumventing the
+need for explicit “objectness” in learnt representations. However, Transporter is a tabula rasa system
+that learns all visual representations from scratch and so every new goal or task requires collecting
+a new set of demonstrations. To address this problem, we bake in a strong semantic prior while
+learning policies. We condition our semantic stream with visual and language-goal features from
+a pre-trained CLIP model [1]. Since CLIP is pre-trained to align image and language features
+from millions of image-caption pairs from the internet, it provides a powerful prior for grounding
+semantic concepts that are common across tasks like categories, parts, shapes, colors, texts, and
+other visual attributes, all without a top-down pipeline that requires bounding boxes or instance
+segmentations [13, 14, 15, 20]. This allows us to formulate tabletop rearrangement as a series of
+language-conditioned affordance predictions, a predominantly vision-based inference problem, and
+thus beneﬁt from the strengths of data-driven paradigms like scale and generalization.
+To study these beneﬁts, we conduct large-scale experiments in the Ravens [2] framework with a
+simulated suction-gripper robot. We propose 10 language-conditioned tasks with 1000s of unique
+instances per task that require both semantic and spatial reasoning (see Figure 1 a-j). CLIPORT is
+not only effective at solving these tasks, but surprisingly, it can even learn a multi-task model for
+all 10 tasks that achieves better or comparable performance to single-task models. Further, our
+evaluations indicate that our multi-task model can effectively transfer attributes like “pink block”
+across tasks, having never seen pink blocks or the word ‘pink’ in the context of the evaluation task.
+We also demonstrate our approach on a Franka Panda manipulator with one multi-task model for 9
+real-world tasks trained with just 179 image-action pairs (see Figure 1 k-o).
+2

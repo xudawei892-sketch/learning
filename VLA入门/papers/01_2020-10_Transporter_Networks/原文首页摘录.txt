@@ -1,0 +1,104 @@
+来源：https://arxiv.org/pdf/2010.14406
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Transporter Networks: Rearranging the Visual World
+for Robotic Manipulation
+Andy Zeng, Pete Florence, Jonathan Tompson, Stefan Welker, Jonathan Chien
+Maria Attarian, Travis Armstrong, Ivan Krasin, Dan Duong
+Ayzaan Wahid, Vikas Sindhwani, Johnny Lee
+Robotics at Google
+Abstract. Robotic manipulation can be formulated as inducing a sequence of spatial
+displacements: where the space being moved can encompass an object, part of an
+object, or end effector. In this work, we propose the Transporter Network, a simple
+model architecture that rearranges deep features to infer spatial displacements from
+visual input – which can parameterize robot actions. It makes no assumptions of
+objectness (e.g. canonical poses, models, or keypoints), it exploits spatial symmetries,
+and is orders of magnitude more sample efficient than our benchmarked alternatives
+in learning vision-based manipulation tasks: from stacking a pyramid of blocks, to
+assembling kits with unseen objects; from manipulating deformable ropes, to pushing
+piles of small objects with closed-loop feedback. Our method can represent complex
+multi-modal policy distributions and generalizes to multi-step sequential tasks, as well
+as 6DoF pick-and-place. Experiments on 10 simulated tasks show that it learns faster
+and generalizes better than a variety of end-to-end baselines, including policies that
+use ground-truth object poses. We validate our methods with hardware in the real world.
+Experiment videos and code will be made available at https://transporternets.github.io
+Keywords: Deep Learning, Vision, Manipulation
+1
+Introduction
+End-to-end models that map directly from pixels to actions hold the capacity to learn complex manipulation
+skills, but are known to require copious amounts of data [1, 2]. Integrating object-centric assumptions – e.g.,
+object keypoints [3, 4, 5, 6], embeddings [7, 8], or dense descriptors [9, 10, 11] – has been shown to improve
+sample efficiency [10]. However, these representations often impose data collection burdens (i.e., configur-
+ing scenes with specific singulated objects) and still struggle to address challenging scenarios with unseen
+classes of objects, occluded objects, highly deformable objects, or piles of small objects [12]. This naturally
+leads us to ask: is there structure that we can incorporate into our end-to-end models to improve their
+learning efficiency, without imposing any of the limitations or burdens of explicit object representations?
+In this work, we propose the Transporter Network, a simple end-to-end model architecture that preserves
+spatial structure for vision-based manipulation, without object-centric assumptions:
+• Manipulation involves rearranging things, which can be thought of as executing a sequence of spatial dis-
+placements: where the space being moved (i.e., transported) can encompass an object(s), part of an object,
+or end effector. We formulate vision for manipulation as estimating these displacements. Transporter Net-
+works directly optimize for this by learning to 1) attend to a local region, and 2) predict its target spatial
+displacement via deep feature template matching – which then parameterizes robot actions for manipula-
+tion. This formulation enables high-level perceptual reasoning about which visual cues are important, and
+how they should be rearranged in a scene – the distributions of which can be learned from demonstrations.
+• Transporter Networks preserve the 3D spatial structure of the visual input. Prior end-to-end models [1, 2]
+often use convolutional architectures with raw images, in which valuable spatial information can be lost
+to perspective distortions. Our method uses 3D reconstruction to project visual data onto a spatially-
+consistent representation as input, with which it is able to better exploit equivariance [13, 14] for inductive
+biases that are present within the geometric symmetries [15] of the data for more efficient learning.
+In our experiments, Transporter Networks exhibit superior sample efficiency on a number of tabletop
+manipulation tasks that involve changing the state of the robot’s environment in a purposeful manner: from
+stacking a pyramid of blocks, to assembling kits with unseen objects; from manipulating deformable ropes,
+to pushing piles of small objects with closed-loop feedback. Transporter Networks excel in modeling
+4th Conference on Robot Learning (CoRL 2020), Cambridge MA, USA.
+arXiv:2010.14406v3  [cs.RO]  5 Jan 2022
+
+
+===== PDF 第 2 页 =====
+
+Figure 1. A Transporter Network is a simple model architecture that attends to a local region and predicts its spatial displacement (b) from visual
+input – which can parameterize robot actions. It is sample efficient in learning complex vision-based manipulation tasks: inserting blocks into fixtures
+(a), sequential pick-and-place in Towers of Hanoi (c), assembling kits with unseen objects (d), palletizing boxes (e), stacking a pyramid of blocks (f),
+manipulating rope (g), and pushing piles of small objects with closed-loop feedback (h) – and is practical to deploy on real production robots (k, m).
+multi-modal spatial action distributions, and by construction generalize across rotations and translations
+of objects. They do not require any prior knowledge of the objects to be manipulated – they rely only
+on information contained within partial RGB-D data from demonstrations, and are capable of generalizing
+to new objects and configurations, and for some tasks, one-shot learning from a single demonstration.
+Our main contribution is a new perspective on the role of spatial structure and its capacity to improve end-to-
+end learning for vision-based manipulation. We propose a simple model architecture that learns to attend to
+a local region and predict its spatial displacement, while retaining the spatial structure of the visual input. On
+10 unique tabletop manipulation tasks, Transporter Networks trained from scratch are capable of achieving
+greater than 90% success on most tasks with objects in new configurations using 100 expert demonstrations,
+while other end-to-end alternatives struggle to generalize with the same amount of data. We also develop an
+extension to 6DoF tasks by combining 3DoF Transporter Networks with continuous regression to handle the
+remaining degrees of freedom. To facilitate further research in vision-based manipulation, we plan release
+code and open-source Ravens, our new simulated benchmark with all tasks. Ravens features a Gym-like
+API [16] with a built-in stochastic oracle to evaluate the sample efficiency of imitation learning methods.
+2
+Related Work
+Object-centric Representations. Considerable research in vision for manipulation has been devoted
+to object detectors and pose estimators [17, 18, 19, 20, 21]. These methods often require object-specific
+training data, making them difficult to scale to applications with unseen objects. Alternative representations
+including keypoints [3, 4, 5, 6] and dense descriptors [9, 10, 11] have shown to be capable of category-level
+generalization and representing deformable objects, but still struggle to represent scenes with an
+unknown number of objects (e.g., piles of small objects) or occluded objects. End-to-end models for
+vision-based manipulation learn faster when integrated with such object-centric representations [10],
+providing sample-efficiency benefits but retaining the data-collection and representational constraints of
+object-centricness. In this work, we show that it is possible to achieve sample efficient end-to-end learning
+without object-centric representations – enabling the same model architecture to generalize to tasks with
+unseen objects, variable numbers of objects, deformable objects, and piles of small objects.
+Pick-and-Place has had a long history in robotics, motivated by industrial needs. Classic systems use pose
+estimation of known objects [17, 18], as well as scripted planning and motion control [22]. While robust in
+structured settings (e.g., manufacturing), these systems are difficult to deploy in unstructured settings (e.g.,
+logistics, agriculture, household) – leading to renewed interest in leveraging learned models to achieve gen-
+eral pick-and-place policies [23, 24, 25, 26, 27, 28, 29, 30] that can handle unseen objects. We benchmark
+against the more recent Form2Fit [24] on multiple tasks, and demonstrate that Transporter Networks are bet-
+ter able to handle tasks that require precise placing, multi-step sequencing, and closed-loop visual feedback.
+3
+Method
+Consider the problem of learning pick-and-place actions at with a robot from visual observations ot:
+f(ot)→at=(Tpick,Tplace)∈A
+where Tpick is the pose of the end effector used to pick an object, and Tplace to place the object. Both
+poses can be defined in SE(2) or SE(3), depending on the task and degrees of freedom available to the
+2

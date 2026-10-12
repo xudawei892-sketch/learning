@@ -1,0 +1,42 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>笔记</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:17px/1.8 system-ui,"Microsoft YaHei",sans-serif;color:#243047;background:#fbfcff}h1,h2,h3{line-height:1.4;color:#122440}a{color:#1756ba;text-decoration:none}a:hover{text-decoration:underline}table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow:auto}td,th{border:1px solid #dbe1eb;padding:9px;text-align:left}th{background:#eaf0fa}pre{padding:16px;background:#edf1f7;overflow:auto;white-space:pre-wrap}code{font-size:.92em}blockquote{border-left:4px solid #7897cc;padding:8px 18px;background:#eef3fc}nav{padding-bottom:18px;border-bottom:1px solid #dbe1eb}.card{background:white;padding:16px 22px;border:1px solid #dbe1eb;border-radius:12px;margin:16px 0}li{margin:5px 0}footer{font-size:13px;color:#68758a;margin-top:45px}</style></head><body><nav><a href="../../index.html">← 返回资料首页</a></nav><h1 id="spatialvla">SpatialVLA：中文入门导读</h1>
+<blockquote>
+<p><strong>性质：入门导读，不是全文精读。</strong> 已下载原始 PDF 并核对标题、摘要/首页；结合论文知识与可访问的官方项目资料整理。下文的局限与阅读问题包含导读分析，不全部是作者的原句。公式、图号和详细实验请继续对照全文。</p>
+</blockquote>
+<ul>
+<li>标题：SpatialVLA: Exploring Spatial Representations for Visual-Language-Action Model</li>
+<li>arXiv：<a href="https://arxiv.org/abs/2501.15830">2501.15830</a>；arXiv 编号所示月份：2025-01（不代表会议发表时间）</li>
+<li>类别：VLA扩展；阅读优先级：B（A 为主线重点，B 为背景/按方向选读）</li>
+<li>原始 PDF：<a href="paper.pdf">本地 paper.pdf</a> / <a href="https://arxiv.org/pdf/2501.15830">官方来源</a>；20 页，下载版本：2501.15830v5。</li>
+<li>代码/资源：https://github.com/SpatialVLA/SpatialVLA</li>
+</ul>
+<p>核验依据：<a href="原文首页摘录.txt">原文首页摘录</a>（PDF 第 1–2 页）；原文图表以 PDF 为准。</p>
+<h2 id="_1">它要解决什么，为什么研究这个问题</h2>
+<p>通用图文模型的空间理解和机器人动作几何并不自然对齐。</p>
+<h2 id="_2">核心方法，用入门语言讲</h2>
+<p>结合空间感知视觉表示与空间动作 tokenization，增强 VLA 的空间建模。</p>
+<h2 id="_3">在发展脉络中的位置</h2>
+<p>把三维结构与动作表示作为改善 VLA 的研究切入点。</p>
+<h2 id="_4">适用边界与容易误解的地方</h2>
+<p>空间信息来源及误差会影响控制；比较需统一数据和评测协议。</p>
+<h2 id="_5">精读时必须回答的问题</h2>
+<p>三维线索怎样进入模型？空间动作分箱如何与普通逐维分箱不同？</p>
+<p>前置知识/建议先读：OpenVLA、相机几何。</p>
+<p>第一次读：先读摘要、总览图、任务设定和结论；自己写一句「输入是什么、输出是什么、训练数据是什么」。第二次读：定位核心方法与训练目标；第三次读：查看泛化划分、基线与消融，判断作者究竟证明了什么。</p>
+<h2 id="_6">你的阅读记录（待填写）</h2>
+<ul>
+<li>阅读日期与 PDF 版本：</li>
+<li>观测输入（相机、语言、状态、历史）：</li>
+<li>动作输出（关节/末端、绝对/增量、频率、动作块）：</li>
+<li>训练数据与预训练来源：</li>
+<li>核心公式与符号含义（写页码）：</li>
+<li>关键图/表及它支持的结论（写页码）：</li>
+<li>泛化类型：物体 / 场景 / 任务 / 指令 / 机器人形态：</li>
+<li>与上一代的实质区别：</li>
+<li>一个消融说明了什么：</li>
+<li>我仍不明白的三个问题：</li>
+<li>值得复现的最小实验：</li>
+</ul>
+<h2 id="ai">给 AI 的精读提示</h2>
+<blockquote>
+<p>我正在读这篇论文。请只基于我提供的原文片段和图表，先忠实翻译，再解释动机、输入输出和符号；区分作者的结论与你的推测。指出证据的章节/页码。没有原文支持时明确说无法确认。不要替我编造实验数字。最后提出两个检查我是否理解的问题。</p>
+</blockquote><footer>VLA 入门资料包 · 本地离线阅读 · 论文及导读范围以说明为准</footer></body></html>

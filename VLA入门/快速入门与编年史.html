@@ -1,0 +1,136 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>快速入门与编年史</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:17px/1.8 system-ui,"Microsoft YaHei",sans-serif;color:#243047;background:#fbfcff}h1,h2,h3{line-height:1.4;color:#122440}a{color:#1756ba;text-decoration:none}a:hover{text-decoration:underline}table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow:auto}td,th{border:1px solid #dbe1eb;padding:9px;text-align:left}th{background:#eaf0fa}pre{padding:16px;background:#edf1f7;overflow:auto;white-space:pre-wrap}code{font-size:.92em}blockquote{border-left:4px solid #7897cc;padding:8px 18px;background:#eef3fc}nav{padding-bottom:18px;border-bottom:1px solid #dbe1eb}.card{background:white;padding:16px 22px;border:1px solid #dbe1eb;border-radius:12px;margin:16px 0}li{margin:5px 0}footer{font-size:13px;color:#68758a;margin-top:45px}</style></head><body><nav><a href="index.html">← 返回资料首页</a></nav><h1 id="vla">VLA 快速入门与发展编年史</h1>
+<h2 id="vla_1">先用一个例子理解 VLA</h2>
+<p>你对机械臂说：「把红色杯子放进左边的抽屉。」摄像头提供当前场景，文字提供目标，关节或末端状态说明机器人自身的位置。策略根据这些输入输出机器人动作，机器人执行后再拍图、再预测，形成闭环。</p>
+<p>一个常见抽象是：</p>
+<p><code>策略 π(相机图像、语言指令、本体状态、可选历史) → 下一步动作或未来一段动作</code></p>
+<p>Vision 是看环境，Language 是理解目标，Action 是产生控制量。VLA 文献的边界并不完全统一：本资料包主要关注融合视觉语言表示、从机器人数据学习动作的策略，同时收录理解它们所需的规划、视觉控制、数据和评测工作。</p>
+<p>动作可能是末端位置增量、旋转增量、夹爪开合，也可能是关节目标。模型输出一般还要经过反归一化、坐标转换和底层控制器，不能把一句自然语言或一串 token 直接发送给电机。若动作定义不一致，模型即使「理解指令」也会执行错误。</p>
+<h2 id="_1">发展不是一条不断淘汰前人的直线</h2>
+<p>这个领域同时在回答四个问题：怎样理解目标，怎样产生精确动作，怎样获得足够多数据，以及怎样证明真的泛化。以下年月主要按 arXiv 编号和项目发布阶段组织；并非发现的精确时间或会议出版时间。更早的机器人控制、强化学习和模仿学习是背景，本资料包不追溯完整学科史。</p>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>代表工作</th>
+<th>当时的关键问题</th>
+<th>留下的关键认识</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2020–2021：视觉控制与语义先验</td>
+<td>Transporter、CLIP、RoboMimic、CLIPort</td>
+<td>看得见目标，怎样定位、控制，又怎样理解语言？</td>
+<td>视觉空间结构、语言语义和示教数据质量各自重要</td>
+</tr>
+<tr>
+<td>2022：任务条件与语言规划</td>
+<td>BC-Z、SayCan、Code as Policies、VIMA</td>
+<td>怎样复用多任务技能、接上语言模型？</td>
+<td>高层规划与低层控制是不同问题；语言合理性需要可执行性约束</td>
+</tr>
+<tr>
+<td>2022 年末–2023：规模化与网络知识</td>
+<td>RT-1、PaLM-E、RT-2</td>
+<td>真实机器人数据能否扩展？互联网知识能否进入动作策略？</td>
+<td>大规模多任务学习与 VLM 知识迁移形成现代 VLA 主线</td>
+</tr>
+<tr>
+<td>2023：动作生成的并行进展</td>
+<td>Diffusion Policy、ACT</td>
+<td>连续动作多峰、误差累积、高频控制怎样处理？</td>
+<td>动作块、生成式建模和时间聚合成为重要设计，不必都通过语言 token</td>
+</tr>
+<tr>
+<td>2023–2024：跨机器人数据与开放基线</td>
+<td>BridgeData V2、Open X-Embodiment、DROID、Octo、OpenVLA</td>
+<td>闭源和单实验室数据怎样突破？</td>
+<td>标准化、多源数据、可适配接口与开放实现支撑后续研究</td>
+</tr>
+<tr>
+<td>2024 年末：连续动作 VLA</td>
+<td>RDT-1B、π0</td>
+<td>语义知识怎样接上精细、高频动作？</td>
+<td>VLM 加独立动作专家/生成式动作头是一条强路线</td>
+</tr>
+<tr>
+<td>2025：效率、空间、开放世界</td>
+<td>FAST、SpatialVLA、OpenVLA-OFT、GR00T N1、π0.5、SmolVLA</td>
+<td>怎样缩短时延、改善几何、降低成本、扩展新场景？</td>
+<td>动作表示、训练配方、数据和推理系统共同决定能力</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">更早的背景：先有机器人控制和从经验学习</h2>
+<p>VLA 出现前，机器人已经通过感知、运动规划和反馈控制执行操作；随后，深度视觉控制、强化学习与从人类演示学习，逐渐让部分手工设计的模块能够从数据获得。现代 VLA 的变化是将大规模视觉语言预训练与机器人策略联系起来，而不是首次发明机器人控制。本资料包从 2020 年的代表工作开始收录论文，更早历史这里只提供理解现代路线所需的背景。</p>
+<h2 id="20202021">2020–2021：先把「看见」与「在哪里动」接起来</h2>
+<p>Transporter Networks 利用图像中的空间结构做拾取和放置。CLIP 则用网络图文学习视觉语义，但本身不会操作机器人。CLIPort 把两种优势结合：语言帮助决定「什么物体」，空间分支帮助决定「在哪里抓、放」。这是理解 VLA 的好入口：语义和几何相互需要，但不能互相替代。</p>
+<p>RoboMimic 提醒我们先建立可靠的行为克隆基线：演示质量、数据划分、观测形式与训练细节都会影响结果。CALVIN 则把评测从单步、单任务扩展到语言条件任务链。</p>
+<p><strong>学这一阶段时问：</strong> 什么来自互联网预训练？什么来自机器人示教？输出到底是坐标还是文字？</p>
+<h2 id="2022">2022：语言模型会规划，还要知道机器人会什么</h2>
+<p>BC-Z 将任务表示与行为克隆结合，研究新任务泛化。SayCan 将语言模型的「这个技能对任务是否合适」与机器人技能的「这个技能当前是否可执行」组合起来。Code as Policies 让模型生成调用机器人接口的程序。VIMA 则用图像和文字共同指定任务。</p>
+<p>这些工作帮助理解系统分层：上层选择技能或生成程序，底层策略执行动作。SayCan 很关键，但不能把它理解为与 OpenVLA 相同的端到端低层控制模型。</p>
+<p><strong>重要认识：</strong> 知道「先开抽屉再放杯子」不等于会精确抓取杯子；高层推理成绩不能代替低层执行评测。</p>
+<h2 id="2022-2023rt-1-rt-2-vla">2022 年末–2023：RT-1 到 RT-2，现代 VLA 主线形成</h2>
+<p>RT-1 研究在大量真实机器人多任务数据上训练统一 Transformer 策略。输入含视觉和语言，输出离散机器人动作。PaLM-E 研究怎样把视觉及连续具身状态接入语言模型。RT-2 将机器人动作表达成 token，并联合视觉语言任务训练，让网络图文中的概念知识能够影响机器人动作选择。</p>
+<p><strong>重要认识：</strong> 网络知识有助于目标理解和语义泛化，但它没有自动提供接触力、抓取摩擦或新运动技能。读 RT-2 时要分开看「新物体/新语义」和「从未学过的物理技能」。</p>
+<h2 id="2023">2023：不只扩大语言模型，还要研究动作本身</h2>
+<p>Diffusion Policy 将动作序列作为条件生成问题。一个场景可能有多种合理抓取方向；简单均方误差回归可能把它们平均成坏动作，生成式策略则可以建模不同可行动作。ACT 使用动作分块，配合时间聚合，减少逐步预测带来的误差，并依托 ALOHA 的低成本遥操作获取精细示教。</p>
+<p>这两篇不是典型现代 VLA，却是读懂 π0、FAST、OFT 的前置知识。</p>
+<p><strong>重要认识：</strong> 观测历史、预测动作长度和真正开环执行长度是三个不同设置。一次预测未来 50 步不代表必须执行 50 步才允许看新图像。</p>
+<h2 id="20232024">2023–2024：数据、跨形态与开放实现成为基础设施</h2>
+<p>BridgeData V2 增加开放的多场景示教。Open X-Embodiment 汇聚跨实验室、跨机器人数据并研究迁移。DROID 进一步扩大真实环境采集。不同机器人有不同相机、控制频率和动作定义；数据必须先理解、对齐，不能把所有数字拼起来就当成同一种动作。</p>
+<p>Octo 提供模块化、扩散动作头的开放通用机器人策略；OpenVLA 提供基于视觉语言骨干的开放 VLA。它们都能成为研究起点，但架构、模型规模和动作头不同，不能把「通用策略」自动等同「大型 VLM 输出动作 token」。</p>
+<p><strong>重要认识：</strong> 基础模型价值包括预训练后更容易适配；不是任意新机器人都无需数据即可使用。数据混合权重和归一化也是方法的一部分。</p>
+<h2 id="2024-20250">2024 年末–2025：π0 与高效动作接口</h2>
+<p>π0 将视觉语言表示与连续动作专家结合，用 flow matching 生成动作块。与离散自回归动作相比，它展示了另一种连接「语义能力」与「连续控制」的方式。RDT-1B 则提供大规模扩散式双臂策略路线。</p>
+<p>FAST 针对动作块的 tokenization：利用动作序列的结构做压缩，让自回归路线更高效。FAST 是动作表示方法，π0-FAST 与 π0 的连续 flow 动作头不能混为一谈。OpenVLA-OFT 表明动作分块、连续预测、视觉输入和微调配方也能改变推理效率及任务表现。</p>
+<p>SpatialVLA 强调空间结构；GR00T N1 将视觉语言理解与动作生成结合，面向人形机器人；SmolVLA 探索较小模型及更低成本的执行。π0.5 进一步聚焦新环境中的长程操作与开放世界泛化。</p>
+<p><strong>重要认识：</strong> 泛化取决于语义表示、数据覆盖、动作建模和执行系统的共同作用。「更大」「更快」「更开放」分别是不同维度。</p>
+<h2 id="_3">读论文时用这张检查表</h2>
+<table>
+<thead>
+<tr>
+<th>比较轴</th>
+<th>你必须写清楚的内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入</td>
+<td>几个相机？有没有本体状态、历史、目标图像？</td>
+</tr>
+<tr>
+<td>动作</td>
+<td>关节/末端？绝对/增量？坐标系？单位？频率？块长度？</td>
+</tr>
+<tr>
+<td>模型</td>
+<td>VLM 自回归？扩散？flow matching？连续回归？</td>
+</tr>
+<tr>
+<td>数据</td>
+<td>哪些机器人？多少场景？语言标注来源？目标任务是否进入训练？</td>
+</tr>
+<tr>
+<td>适配</td>
+<td>从头训练、全量微调、LoRA，还是零样本？</td>
+</tr>
+<tr>
+<td>泛化</td>
+<td>新物体、新场景、新语义、新任务还是新机器人？</td>
+</tr>
+<tr>
+<td>评测</td>
+<td>真机或仿真？哪些套件？多少种子/回合？成功判据？</td>
+</tr>
+<tr>
+<td>成本</td>
+<td>参数量、显存、实测延迟、有效控制频率？同硬件比较了吗？</td>
+</tr>
+</tbody>
+</table>
+<p>LIBERO、CALVIN、SimplerEnv 与 RoboCasa 测的问题并不相同。跨论文看成功率前，先对齐训练数据、任务套件、相机、微调方式和评测次数。这里故意不制作脱离条件的性能排行榜。</p>
+<h2 id="_4">最短主线</h2>
+<p>先建立行为克隆概念，然后读 <strong>CLIPort → RT-1 → RT-2 → Open X-Embodiment → OpenVLA</strong>。补上 <strong>Diffusion Policy + ACT</strong>，再读 <strong>π0 → FAST / OpenVLA-OFT → π0.5</strong>。准备做实验前读 <strong>LIBERO</strong>。</p>
+<p>不必先把 32 篇都读完。能准确解释 OpenVLA 与 π0 的输入、动作输出、训练目标、数据和局限，你已经能够判断很多新工作改的是哪一层。</p><footer>VLA 入门资料包 · 本地离线阅读 · 论文及导读范围以说明为准</footer></body></html>

@@ -1,0 +1,96 @@
+来源：https://raw.githubusercontent.com/aloha-unleashed/aloha-unleashed.github.io/main/assets/aloha_unleashed.pdf
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+ALOHA Unleashed: A Simple Recipe for Robot Dexterity
+Tony Z. Zhao∗, Jonathan Tompson, Danny Driess, Pete Florence,
+Kamyar Ghasemipour, Chelsea Finn, Ayzaan Wahid∗
+Google DeepMind
+Abstract: Recent work has shown promising results for learning end-to-end robot
+policies using imitation learning. In this work we address the question of how far
+can we push imitation learning for challenging dexterous manipulation tasks. We
+show that a simple recipe of large scale data collection on the ALOHA 2 platform,
+combined with expressive models such as Diffusion Policies, can be effective in
+learning challenging bimanual manipulation tasks involving deformable objects
+and complex contact rich dynamics. We demonstrate our recipe on 5 challeng-
+ing real-world and 3 simulated tasks and demonstrate improved performance over
+state-of-the-art baselines. The project website and videos can be found at aloha-
+unleashed.github.io.
+Keywords: Imitation Learning, Manipulation
+Robot Finger Replace
+Kitchen Stacking
+Shoelace Tying
+Shirt Hanging
+Gear Insertion
+Figure 1: ALOHA Unleashed trains a transformer encoder-decoder architecture with a diffusion
+loss to learn highly dexterous bimanual manipulation tasks like hanging a shirt and tying shoelaces.
+1
+Introduction
+Dexterous manipulation tasks such as tying shoe laces or hanging t-shirts on a coat hanger have
+traditionally been seen as very difﬁcult to achieve with robots. From a modeling perspective, these
+tasks are challenging since they involve (deformable) objects with complex contact dynamics, re-
+quire many manipulation steps to solve the task, and involve the coordination of high-dimensional
+robotic manipulators, especially in bimanual setups, and generally often demand high precision.
+In recent years, imitation learning has been established as a recipe for obtaining policies that can
+solve a wide variety of tasks. However, most of these success stories predominantly concern non-
+dexterous tasks such as pick and place [1], or pushing [2]. Therefore, it is unclear if simply scaling
+up imitation learning is sufﬁcient for dexterous manipulation, since collecting a dataset that covers
+the state variation of the system with the required precision for such tasks seems prohibitive.
+∗Equal contribution
+
+
+===== PDF 第 2 页 =====
+
+In this paper, we demonstrate that by choosing the appropriate learning architecture combined with
+a suitable data collection strategy, it is possible to push the frontier of dexterous manipulation with
+imitation learning. We show on the ALOHA 2 [3] platform that we can obtain policies that are capa-
+ble of solving highly dexterous, long-horizon, bimanual manipulation tasks that involve deformable
+objects and require high precision. To achieve this, we develop a protocol to collect data on a scale
+previously unmatched by any bimanual manipulation platform, with over 26,000 demonstrations for
+5 tasks on a real robot, and over 2,000 demonstrations on 3 simulated tasks.
+However, we ﬁnd that the data alone is insufﬁcient. The other key ingredient in our approach is a
+transformer-based learning architecture trained with a diffusion loss [4, 5]. Conditioned on multiple
+views, this architecture denoises a trajectory of actions, which is executed open-loop in a receding
+horizon setting. Results show that non-diffusion based architectures are incapable of solving some
+of our tasks, despite being previously tuned for the ALOHA platform.
+Our experimental evaluation involves 5 real world tasks such as tying shoe laces and hanging clothes
+on a hanger as well as 3 simulated tasks. We investigate the data complexity and out-of-distribution
+robustness of our policies. To the best of our knowledge, we are the ﬁrst to demonstrate an end-to-
+end policy that can tie shoelaces or hang t-shirts autonomously.
+2
+Related Work
+Imitation learning. Imitation learning enables robots to learn from expert demonstrations [6]. Early
+works tackle this problem through the lens of motor primitives [7, 8, 9, 10].
+With the development of deep learning and generative modeling, different architectures and training
+objectives are proposed to model the demonstrations end-to-end. This includes the use of ConvNets
+or ViT for image processing [11, 12, 13], RNN or transformers for fusing history observations [14,
+15, 16], tokenization of the action space [1], generative modeling techniques such as energy-based
+models [17], diffusion [18] and VAEs [19, 20]. In this work, we push for simplicity of the algorithm,
+building upon existing imitation learning algorithms. Speciﬁcally, we train a transformer-based
+policy with diffusion loss, inspired by Diffusion Policy [18] and ACT [20]. While unlike previous
+works, we train on large amounts of data from non-researcher data collectors, who use ALOHA 2
+to perform tasks that are both precise and multi-modal.
+Bimanual manipulation. Bimanual manipulation has a long history in robotics. Early works tackle
+bimanual manipulation from an optimization perspective, with known environment dynamics [21,
+22]. However, obtaining such environment dynamics models can be time-consuming, especially
+those that captures rich contact or deformable objects. More recently, learning has been incorporated
+into bimanual systems, including reinforcement learning [23, 24], imitating learning [25, 26, 27,
+28, 29], or learning of key points that modulate low-level motor primitives [30, 31, 32]. Previous
+works have also studied highly dexterous bimanual manipulation tasks, such as knot untying, cloth
+ﬂattening, or even threading a needle [31, 33, 34]. However, the robots used are much less accessible
+such as surgical robots from Intuitive. In this work, we use a ﬂeet of low-cost ALOHA 2 systems
+[3] to study how scaling up data collection itself can already bring signiﬁcant advancements in robot
+dexterity, without ultra-precise kinematics and elaborate sensing.
+Scale up robot learning in the real world. Many works have attempted to scale up robot learning
+using real-world data collection. Teleoperation is a one way to collect high-quality data, with a
+human in the loop controlling the robot. Previous works have collected large datasets on single-arm
+robots using VR controller or haptic device [13, 35, 16, 36, 37], demonstrating generalization to
+novel scenes and objects. Alternatively, the robot can also be programmed [38] or controlled by
+Reinforcement Learning (RL) algorithms [39] to collect data autonomously, reducing the need of
+human supervision. Another way to collect expert data is to use wearable or hand-held devices,
+such as grippers [40, 41, 42], exoskeleton [43], or tracking gloves [44]. This allows scaling up
+of data collection without requiring full robots. There are also ongoing efforts to combine all the
+aforementioned datasets, to train a single model that can control multiple robots [45]. In this work,
+we focus on scaling up the dexterity aspect of robot learning, together with robust handling of
+deformable and articulated objects. To the best of our knowledge, we trained the ﬁrst end-to-end
+policy that can autonomously tie shoelaces and hang t-shirts.
+2

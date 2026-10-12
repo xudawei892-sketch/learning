@@ -1,0 +1,118 @@
+来源：https://arxiv.org/pdf/2308.12952
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+BridgeData V2:
+A Dataset for Robot Learning at Scale
+Homer Walke1
+Kevin Black1
+Abraham Lee1
+Moo Jin Kim2
+Max Du2
+Chongyi Zheng4
+Tony Zhao2
+Philippe Hansen-Estruch1
+Quan Vuong3
+Andre He1
+Vivek Myers1
+Kuan Fang1
+Chelsea Finn2
+Sergey Levine1
+1UC Berkeley 2Stanford 3Google DeepMind 4CMU
+Abstract: We introduce BridgeData V2, a large and diverse dataset of robotic
+manipulation behaviors designed to facilitate research on scalable robot learning.
+BridgeData V2 contains 60,096 trajectories collected across 24 environments on
+a publicly available low-cost robot. BridgeData V2 provides extensive task and
+environment variability, leading to skills that can generalize across environments,
+domains, and institutions, making the dataset a useful resource for a broad range of
+researchers. Additionally, the dataset is compatible with a wide variety of open-
+vocabulary, multi-task learning methods conditioned on goal images or natural
+language instructions. In our experiments, we train 6 state-of-the-art imitation
+learning and offline reinforcement learning methods on our dataset, and find that
+they succeed on a suite of tasks requiring varying amounts of generalization. We
+also demonstrate that the performance of these methods improves with more data
+and higher capacity models, and that training on a greater variety of skills leads to
+improved generalization. By publicly sharing BridgeData V2 and our pre-trained
+models, we aim to accelerate research in scalable robot learning methods. Project
+page: https://rail-berkeley.github.io/bridgedata/
+Many Skills
+24 Environments
+Open Vocabulary
+100+ Objects
+move the green cloth from the
+left burner to the right burner
+remove the carrot from the drawer
+and put it on top of the drawer
+Figure 1 (BridgeData V2) We propose a large-scale robotic manipulation dataset containing 60,096
+trajectories across 24 environments. The dataset includes skills such as pick-and-place, pushing,
+sweeping, stacking, folding, and more. Portions of the data include multiple camera views and
+depth data, and all of the data includes natural language labels.
+Corresponding email: homer walke@berkeley.edu
+7th Conference on Robot Learning (CoRL 2023), Atlanta, USA.
+arXiv:2308.12952v3  [cs.RO]  17 Jan 2024
+
+
+===== PDF 第 2 页 =====
+
+1
+Introduction
+A useful robotic system needs skills that generalize across the wide variety of conditions found in
+the real world. Recent results in computer vision and natural language processing have demonstrated
+that we can obtain broad generalization by training high-capacity models on large and diverse
+datasets [1, 2].
+How can we apply this same recipe in robotics?
+The general strategy seems
+straightforward. First, collect a large dataset of demonstrations of robot behaviors. Then, train an
+expressive policy to extract the desirable behaviors with behavioral cloning or offline reinforcement
+learning (RL). Given enough data in enough settings, we should learn a policy that can generalize
+across many tasks and environments.
+However, in practice, assembling a dataset with the right features to accelerate research in large-scale
+robot learning presents a significant challenge. Since collecting a large dataset of robot behaviors
+is time-consuming, the dataset should be reusable outside of the institution where it was collected.
+Ideally, any researcher could train on the dataset and obtain a policy with reasonable performance
+on their tasks. To enable this, the dataset needs extensive coverage of tasks and environments so
+that policies learned on the data will generalize to new lab settings. Many existing robot datasets
+contain only one or a few environments and tasks [3, 4, 5], meaning a researcher would need to
+exactly replicate a scene from the data to use them for robot learning. Additionally, the dataset
+should support flexible task conditioning, through goal images or natural language instructions, so
+that researchers can easily command policies trained on the data to perform new tasks. Importantly,
+the dataset should contain data for many feasible tasks in a given environment so that a multi-task
+policy must learn to pay attention to the task specification rather than inferring the task from the
+initial observation.
+In this paper, we propose a new dataset, which we call BridgeData V2 (Figure 1) because it
+greatly expands on the previously released Bridge Dataset [6]. BridgeData V2 contains 50,365
+demonstrations of 13 skills across 24 environments, more than 7 times as many demonstrations as
+the original Bridge Dataset. BridgeData V2 is not just a quantitative improvement: the new dataset
+is specifically designed as a useful resource for a wide range of robot learning research. The greater
+quantity and diversity of data enables better generalization to new lab settings and, unlike the first
+Bridge Dataset, the demonstrations were collected in scenes with many possible skills to support
+open-vocabulary task specification through either goal images or language instructions. We also
+augment the demonstrations with 9,731 trajectories collected from a heavily randomized pick-and-
+place policy to boost the robustness of the foundational objection repositioning skill.
+These features make BridgeData V2 well suited for use with a variety of different robot learning
+methods, many of which make different assumptions.
+While a number of datasets have been
+proposed in the past, these have typically only been used with one type of method (e.g., text-
+conditional behavioral cloning) [5, 7].
+To illustrate the versatility and broad applicability of
+BridgeData V2, we include a comprehensive evaluation of 6 different state-of-the-art robot learning
+methods, which include algorithms for text-conditioned imitation learning [7], goal-conditioned
+imitation learning, and goal-conditioned RL [8, 9]. These methods cover a range of key design
+decisions involving the policy architecture, the use of observation histories, action discretization,
+and action prediction horizon. We also analyze how the performance of some of these methods
+changes with dataset size and diversity, showing that large and diverse datasets like BridgeData V2
+are an important ingredient in enabling good performance.
+Our contributions are a new dataset of robotic manipulation behaviors as well as the empirical study
+of state-of-the-art offline learning methods using the introduced dataset. We find that BridgeData V2
+is useful as an offline dataset for a wide variety of learning algorithms and across multiple labs.
+Additionally, in our scaling analysis, we find that performance improves with both model size and
+dataset size and diversity. We believe BridgeData V2 is both a useful resource for robot learning
+research and a demonstration of the promise of data-driven robot learning.
+2
+Related Work
+Prior work on robot learning has often leveraged small datasets that cover a single task in a single
+domain to develop better learning methods [10, 11, 12, 13, 14, 15, 16, 17, 18].
+Several prior
+projects have assembled large robot datasets for a single behavior like grasping [19, 20, 21, 22, 23],
+poking [24], pushing [25, 26], or rope manipulation [27]. Others include multiple tasks [3, 4, 28,
+29, 30, 31, 5, 32, 33]. However, even the multi-task datasets are difficult for other researchers
+2

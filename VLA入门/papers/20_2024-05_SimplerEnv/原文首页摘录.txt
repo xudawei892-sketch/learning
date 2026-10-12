@@ -1,0 +1,185 @@
+来源：https://arxiv.org/pdf/2405.05941
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Evaluating Real-World Robot Manipulation Policies
+in Simulation
+Xuanlin Li∗1, Kyle Hsu∗2, Jiayuan Gu∗1, Karl Pertsch2 3 †, Oier Mees3 †, Homer Rich Walke3, Chuyuan Fu4,
+Ishikaa Lunawat2, Isabel Sieh2, Sean Kirmani4, Sergey Levine3, Jiajun Wu2, Chelsea Finn2,
+Hao Su‡1, Quan Vuong‡4, Ted Xiao‡4
+1UC San Diego, 2Stanford University, 3UC Berkeley, 4Google Deepmind
+∗Equal contribution †Core contributors ‡Co-advising
+https://simpler-env.github.io
+Real robot evaluation (train on real, evaluate in real)
+Simulated evaluation (train on real, evaluate in sim)
+Expensive and slow
+Difficult to reproduce
+Cheap and scalable
+Fully reproducible
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+Real success rate
+0.0
+0.2
+0.4
+0.6
+0.8
+1.0
+Our simulated success rate
+RT-1
+RT-1-X
+RT-2-X
+Octo
+Fig. 1:
+Characterizing generalist robot manipulation policies typically involves evaluating them on many tasks across many scenarios, a
+laborious undertaking in the real world (top left). In this work, we design an evaluation procedure in which policies trained on real data are
+evaluated in purpose-built simulated environments (bottom left). Our approach yields a strong correlation between real-world and simulated
+performance (right) for various open-source robot policies [6, 11, 50] across two commonly used robot embodiments (Google Robot and
+WidowX) and over ∼1500 evaluation episodes. These results highlight the potential of simulation-based approaches for evaluating generalist
+real-world robot manipulation policies in a scalable, reproducible, and reliable way.
+Abstract—The field of robotics has made significant advances
+towards generalist robot manipulation policies. However, real-
+world evaluation of such policies is not scalable and faces
+reproducibility challenges, which are likely to worsen as policies
+broaden the spectrum of tasks they can perform. In this work, we
+demonstrate that simulation-based evaluation can be a scalable,
+reproducible, and reliable proxy for real-world evaluation. We
+identify control and visual disparities between real and simulated
+environments as key challenges for reliable simulated evalua-
+tion and propose approaches for mitigating these gaps without
+needing to craft full-fidelity digital twins of real-world environ-
+ments. We then employ these approaches to create SIMPLER,
+a collection of simulated environments for manipulation policy
+evaluation on common real robot setups. Through paired sim-
+and-real evaluations of manipulation policies, we demonstrate
+strong correlation between policy performance in SIMPLER
+environments and in the real world. Additionally, we find
+that SIMPLER evaluations accurately reflect real-world policy
+behavior modes such as sensitivity to various distribution shifts.
+We open-source all SIMPLER environments along with our
+workflow for creating new environments to facilitate research on
+general-purpose manipulation policies and simulated evaluation
+frameworks.
+I. INTRODUCTION
+Remarkable progress has been made in recent years towards
+building generalist real-world robot manipulation policies [6,
+50], i.e., policies that can perform a wide range of tasks
+across many environments and even robot embodiments. These
+advances are underpinned by large-scale datasets [11, 66] and
+expressive models [1, 6, 29]. However, evaluating these poli-
+cies in a scalable and reproducible way remains challenging as
+real-world evaluation is expensive and inefficient. Compared to
+the evaluation burden of works that study robot performance in
+narrower settings, the scope of evaluations required for faithful
+performance estimates of generalist policies increases with the
+breadth of their abilities. This underlines a growing challenge
+in robot manipulation research: as we scale the capabilities of
+robot policies, how do we correspondingly scale our ability to
+accurately, reproducibly, and comprehensively evaluate them?
+In this work, we propose simulated evaluation as a pos-
+sible answer, in which manipulation policies trained on real
+data are evaluated in purpose-built simulated environments
+(Fig. 1). Such real-to-sim evaluation can serve as a scal-
+arXiv:2405.05941v1  [cs.RO]  9 May 2024
+
+
+===== PDF 第 2 页 =====
+
+Simulated Manipulation Policy Evaluation
+for Real Robot Setups
+SIMPLER
+Pick Coke Can
+Move Near
+Open/Close Drawer
+Put Object in Drawer
+Google Robot
+Put Carrot on Plate
+Stack Cubes
+Put Eggplant in Basket
+Put Spoon on Towel
+BridgeData V2
+import simpler_env
+env = simpler_env.make(
+    "google_robot_pick_coke_can"
+)
+policy = load_policy()
+env.reset()
+env.step(
+    policy.sample_action()
+)
+Fig. 2: We introduce SIMPLER, a suite of open-source simulated evaluation environments for common real robot manipulation setups, namely
+the Google Robot evaluations from the RT-series of works [6, 5, 11], and environments from the BridgeData V2 dataset [66]. All environments
+can be imported with a single line of code and can be interacted with through a standard Gym interface. Additionally, we open-source policy
+inference code for real-to-sim evaluation of common generalist robot policies (RT-1 [6], RT-1-X [11], and Octo [50]), and we provide detailed
+guides for evaluating new policies and creating new evaluation environments. All materials are available at https://simpler-env.github.io.
+able, reproducible, and informative tool to complement gold-
+standard real-world evaluations. Indeed, evaluation in sim-
+ulation is common practice for testing autonomous driving
+policies across a wide range of driving scenarios before real-
+world deployment [16, 44, 71]. However, performing sim-
+ulated evaluations for robotic manipulation poses additional
+challenges due to the diverse interactions between agent and
+environment. At the same time, research on sim-to-real policy
+learning [55, 75] has demonstrated that considerable transfer
+between simulation and the real world is possible even for
+manipulation policies. While sim-to-real approaches typically
+train in simulation and evaluate in the real world, we are
+interested in the opposite question: how can we build systems
+for evaluating manipulation policies trained on real data in
+simulated environments?
+One option to build such simulated environments is to
+fully replicate an existing real-world environment by creating
+a simulated “digital twin”, an approach popular in naviga-
+tion [14, 32] and autonomous driving [48]. However, for
+robot manipulation, reconstructing dynamic and interactive
+objects [70], along with realistic materials and lighting [31]
+in simulation remains an open research question. Furthermore,
+building full-fidelity digital twins demands extensive time and
+resources, typically requiring digital artists to manually craft
+object geometries and materials [14, 59]. Capturing precise
+physical properties of objects for manipulation simulation,
+such as center of mass, inertia, static and dynamic friction,
+further complicates scalability.
+A key idea in this work is that we do not need an exact
+replica of the real-world environment. Instead, we need a
+simulated environment that is merely realistic enough, such
+that the performance of policies evaluated in this simulation
+environment correlates well with their real-world performance.
+This allows us to design environment creation pipelines that
+are more scalable than creating exact digital twins. Through
+extensive experiments, we examine the challenges of build-
+ing effective simulated evaluation pipelines: from control
+disparities to visual disparities between real and simulated
+environments. We then propose and evaluate approaches for
+mitigating these differences based on offline system identifi-
+cation, “green-screening” simulation observations using real-
+world backgrounds, and object texture baking from real-world
+images.
+Using these techniques, we create SIMPLER (Simulated
+Manipulation Policy Evaluation for Real Robot Setups), a suite
+of simulated evaluation environments for commonly used real-
+world robot manipulation environments, namely the RT-1 [6]
+and the Bridge-V2 [66] evaluation setups (Fig. 2). For both
+setups, we perform extensive paired sim-and-real evaluations
+for multiple open-source manipulation policies such as RT-1-
+X [11] and Octo [50], and we demonstrate strong correlation
+between policy performance as assessed by SIMPLER and
+the corresponding real environments (Fig. 1, right). In addi-
+tion, we find that simulated policy evaluations in SIMPLER
+environments accurately reflect policy behavior modes in the
+real world, such as sensitivity to various distribution shifts.
+As such, SIMPLER is a first step towards using simulated
+evaluation as a tool for reliable, scalable, and reproducible
+manipulation policy evaluation. In summary, our contributions
+are as follows:
+• We introduce SIMPLER, a suite of simulated evaluation
+environments for commonly-used real robot manipulation
+setups.
+• We address the challenges inherent in simulated ma-
+nipulation policy evaluation by proposing approaches
+to mitigate real-to-sim control and visual gaps. As a
+result, we demonstrate strong correlation between real
+and simulated policy performance and behavior modes.

@@ -1,0 +1,140 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>术语表</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:17px/1.8 system-ui,"Microsoft YaHei",sans-serif;color:#243047;background:#fbfcff}h1,h2,h3{line-height:1.4;color:#122440}a{color:#1756ba;text-decoration:none}a:hover{text-decoration:underline}table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow:auto}td,th{border:1px solid #dbe1eb;padding:9px;text-align:left}th{background:#eaf0fa}pre{padding:16px;background:#edf1f7;overflow:auto;white-space:pre-wrap}code{font-size:.92em}blockquote{border-left:4px solid #7897cc;padding:8px 18px;background:#eef3fc}nav{padding-bottom:18px;border-bottom:1px solid #dbe1eb}.card{background:white;padding:16px 22px;border:1px solid #dbe1eb;border-radius:12px;margin:16px 0}li{margin:5px 0}footer{font-size:13px;color:#68758a;margin-top:45px}</style></head><body><nav><a href="index.html">← 返回资料首页</a></nav><h1 id="_1">入门术语表</h1>
+<table>
+<thead>
+<tr>
+<th>术语</th>
+<th>直观解释</th>
+<th>容易混淆的地方</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>VLM</td>
+<td>看图并处理语言的模型</td>
+<td>能回答图像问题不等于会控制机器人</td>
+</tr>
+<tr>
+<td>VLA</td>
+<td>把视觉、语言与机器人动作联系起来的策略</td>
+<td>不保证一定用大语言模型或动作 token</td>
+</tr>
+<tr>
+<td>Policy / 策略</td>
+<td>根据观测和目标选择动作的函数</td>
+<td>不是单纯任务描述或聊天回答</td>
+</tr>
+<tr>
+<td>Behavior Cloning / BC</td>
+<td>用示教的观测与动作训练策略模仿专家</td>
+<td>离线损失低不等于闭环成功率高</td>
+</tr>
+<tr>
+<td>Imitation Learning</td>
+<td>从演示学习行为的一类方法</td>
+<td>BC 是其中一种；不等同强化学习</td>
+</tr>
+<tr>
+<td>Proprioception / 本体状态</td>
+<td>机器人自己的关节、末端等状态</td>
+<td>与看外界的相机观测不同</td>
+</tr>
+<tr>
+<td>Embodiment / 形态</td>
+<td>机器人的身体、传感器和动作接口</td>
+<td>同样 7 个数字也可能表示不同动作</td>
+</tr>
+<tr>
+<td>Action Space</td>
+<td>模型输出动作的语义、范围和单位</td>
+<td>要确认坐标系、绝对/增量、关节/末端</td>
+</tr>
+<tr>
+<td>Action Chunk</td>
+<td>一次预测一段未来动作</td>
+<td>预测长度与开环执行长度不同</td>
+</tr>
+<tr>
+<td>Temporal Ensemble</td>
+<td>对不同时间预测到同一步的动作进行融合</td>
+<td>不是普通批量平均整个动作序列</td>
+</tr>
+<tr>
+<td>Tokenization</td>
+<td>把连续信息转换成可生成的符号序列</td>
+<td>动作 token 与自然语言单词的语义不同</td>
+</tr>
+<tr>
+<td>Autoregressive</td>
+<td>根据已生成部分逐步生成后续 token</td>
+<td>长动作块可能增加时延</td>
+</tr>
+<tr>
+<td>Diffusion Policy</td>
+<td>通过迭代去噪生成条件动作序列</td>
+<td>动作去噪不等同图像生成，虽共享建模思路</td>
+</tr>
+<tr>
+<td>Flow Matching</td>
+<td>学习噪声与数据之间连续路径上的速度场</td>
+<td>与扩散相关，但训练目标和采样方程不能直接混写</td>
+</tr>
+<tr>
+<td>Action Expert</td>
+<td>专门建模机器人动作的子网络</td>
+<td>通常要通过注意力或条件机制接入主干信息</td>
+</tr>
+<tr>
+<td>LoRA</td>
+<td>以低秩可训练增量适配大模型</td>
+<td>仍需数据、训练和目标机器人动作对齐</td>
+</tr>
+<tr>
+<td>Fine-tuning</td>
+<td>用目标数据进一步训练预训练模型</td>
+<td>不是零样本部署</td>
+</tr>
+<tr>
+<td>Zero-shot</td>
+<td>在明确的新任务/环境划分上不使用该目标的额外训练</td>
+<td>不是「完全没见过任何相关数据」</td>
+</tr>
+<tr>
+<td>OOD</td>
+<td>超出某个指定训练分布</td>
+<td>必须说明改变的是物体、场景、任务还是形态</td>
+</tr>
+<tr>
+<td>Closed Loop / 闭环</td>
+<td>执行过程中反复感知并更新动作</td>
+<td>输出动作块也可以滚动闭环执行</td>
+</tr>
+<tr>
+<td>Control Frequency</td>
+<td>每秒更新或执行多少次控制</td>
+<td>模型 token 生成速度不是实际控制频率</td>
+</tr>
+<tr>
+<td>Normalization</td>
+<td>把不同尺度的动作转换为便于训练的数值</td>
+<td>反归一化用错数据集统计量会导致错误动作</td>
+</tr>
+<tr>
+<td>RLDS</td>
+<td>用于表示强化学习/机器人轨迹的数据格式生态</td>
+<td>不是一个控制策略或机器人数据集本身</td>
+</tr>
+<tr>
+<td>Sim-to-real</td>
+<td>从仿真迁移到真实机器人</td>
+<td>仿真成功率不能自动当成真机成功率</td>
+</tr>
+<tr>
+<td>Ablation / 消融</td>
+<td>控制其他变量，移除或替换某部分来检验贡献</td>
+<td>完整系统比较不一定能归因到一个模块</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_2">读生成式动作模型前的最低数学准备</h2>
+<p>先会看矩阵维度、条件概率、梯度、交叉熵与均方误差。读动作头时能分清观测条件 <code>o</code>、任务条件 <code>l</code>、动作块 <code>a</code>、噪声与生成时间变量 <code>t</code> 就足够开始。无需先学完整机器人动力学再读第一篇论文。</p>
+<p>行为克隆的直观目标是让策略在演示观测上预测演示动作。连续单峰预测常用回归，离散动作 token 常用交叉熵，多峰连续动作可以用生成式模型。具体论文使用哪个损失、如何加权、是否冻结主干，都要回到原文确认。</p><footer>VLA 入门资料包 · 本地离线阅读 · 论文及导读范围以说明为准</footer></body></html>

@@ -1,0 +1,192 @@
+来源：https://arxiv.org/pdf/2304.13705
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Learning Fine-Grained Bimanual Manipulation with
+Low-Cost Hardware
+Tony Z. Zhao1
+Vikash Kumar3
+Sergey Levine2
+Chelsea Finn1
+1 Stanford University 2 UC Berkeley 3 Meta
+Fig. 1: ALOHA
+: A Low-cost Open-source Hardware System for Bimanual Teleoperation. The whole system costs <$20k with off-the-shelf
+robots and 3D printed components. Left: The user teleoperates by backdriving the leader robots, with the follower robots mirroring the motion.
+Right: ALOHA is capable of precise, contact-rich, and dynamic tasks. We show examples of both teleoperated and learned skills.
+Abstract—Fine manipulation tasks, such as threading cable ties
+or slotting a battery, are notoriously difﬁcult for robots because
+they require precision, careful coordination of contact forces,
+and closed-loop visual feedback. Performing these tasks typically
+requires high-end robots, accurate sensors, or careful calibration,
+which can be expensive and difﬁcult to set up. Can learning
+enable low-cost and imprecise hardware to perform these ﬁne
+manipulation tasks? We present a low-cost system that performs
+end-to-end imitation learning directly from real demonstrations,
+collected with a custom teleoperation interface. Imitation learn-
+ing, however, presents its own challenges, particularly in high-
+precision domains: errors in the policy can compound over time,
+and human demonstrations can be non-stationary. To address
+these challenges, we develop a simple yet novel algorithm, Action
+Chunking with Transformers (ACT), which learns a generative
+model over action sequences. ACT allows the robot to learn 6
+difﬁcult tasks in the real world, such as opening a translucent
+condiment cup and slotting a battery with 80-90% success,
+with only 10 minutes worth of demonstrations. Project website:
+tonyzhaozh.github.io/aloha
+I. INTRODUCTION
+Fine manipulation tasks involve precise, closed-loop feed-
+back and require high degrees of hand-eye coordination to
+adjust and re-plan in response to changes in the environment.
+Examples of such manipulation tasks include opening the lid
+of a condiment cup or slotting a battery, which involve delicate
+operations such as pinching, prying, and tearing rather than
+broad-stroke motions such as picking and placing. Take opening
+the lid of a condiment cup in Figure 1 as an example, where
+the cup is initialized upright on the table: the right gripper
+needs to ﬁrst tip it over, and nudge it into the opened left
+gripper. Then the left gripper closes gently and lifts the cup
+off the table. Next, one of the right ﬁngers approaches the
+cup from below and pries the lid open. Each of these steps
+requires high precision, delicate hand-eye coordination, and
+rich contact. Millimeters of error would lead to task failure.
+Existing systems for ﬁne manipulation use expensive robots
+and high-end sensors for precise state estimation [29, 60, 32,
+41]. In this work, we seek to develop a low-cost system for ﬁne
+manipulation that is, in contrast, accessible and reproducible.
+However, low-cost hardware is inevitably less precise than
+high-end platforms, making the sensing and planning challenge
+more pronounced. One promising direction to resolve this is
+to incorporate learning into the system. Humans also do not
+have industrial-grade proprioception [71], and yet we are able
+to perform delicate tasks by learning from closed-loop visual
+feedback and actively compensating for errors. In our system,
+we therefore train an end-to-end policy that directly maps
+RGB images from commodity web cameras to the actions.
+This pixel-to-action formulation is particularly suitable for
+ﬁne manipulation, because ﬁne manipulation often involves
+objects with complex physical properties, such that learning the
+manipulation policy is much simpler than modeling the whole
+environment. Take the condiment cup example: modeling the
+contact when nudging the cup, and also the deformation when
+prying open the lid involves complex physics on a large number
+of degrees of freedom. Designing a model accurate enough for
+planning would require signiﬁcant research and task speciﬁc
+engineering efforts. In contrast, the policy of nudging and
+opening the cup is much simpler, since a closed-loop policy
+can react to different positions of the cup and lid rather than
+precisely anticipating how it will move in advance.
+arXiv:2304.13705v1  [cs.RO]  23 Apr 2023
+
+
+===== PDF 第 2 页 =====
+
+Training an end-to-end policy, however, presents its own
+challenges. The performance of the policy depends heavily
+on the training data distribution, and in the case of ﬁne
+manipulation, high-quality human demonstrations can provide
+tremendous value by allowing the system to learn from human
+dexterity. We thus build a low-cost yet dexterous teleoperation
+system for data collection, and a novel imitation learning
+algorithm that learns effectively from the demonstrations. We
+overview each component in the following two paragraphs.
+Teleoperation system. We devise a teleoperation setup with
+two sets of low-cost, off-the-shelf robot arms. They are
+approximately scaled versions of each other, and we use joint-
+space mapping for teleoperation. We augment this setup with
+3D printed components for easier backdriving, leading to a
+highly capable teleoperation system within a $20k budget. We
+showcase its capabilities in Figure 1, including teleoperation
+of precise tasks such as threading a zip tie, dynamic tasks such
+as juggling a ping pong ball, and contact-rich tasks such as
+assembling the chain in the NIST board #2 [4].
+Imitation learning algorithm. Tasks that require precision and
+visual feedback present a signiﬁcant challenge for imitation
+learning, even with high-quality demonstrations. Small errors
+in the predicted action can incur large differences in the state,
+exacerbating the “compounding error” problem of imitation
+learning [47, 64, 29]. To tackle this, we take inspiration from
+action chunking, a concept in psychology that describes how
+sequences of actions are grouped together as a chunk, and
+executed as one unit [35]. In our case, the policy predicts the
+target joint positions for the next k timesteps, rather than just
+one step at a time. This reduces the effective horizon of the task
+by k-fold, mitigating compounding errors. Predicting action
+sequences also helps tackle temporally correlated confounders
+[61], such as pauses in demonstrations that are hard to model
+with Markovian single-step policies. To further improve the
+smoothness of the policy, we propose temporal ensembling,
+which queries the policy more frequently and averages across
+the overlapping action chunks. We implement action chunking
+policy with Transformers [65], an architecture designed for
+sequence modeling, and train it as a conditional VAE (CVAE)
+[55, 33] to capture the variability in human data. We name our
+method Action Chunking with Transformers (ACT), and ﬁnd
+that it signiﬁcantly outperforms previous imitation learning
+algorithms on a range of simulated and real-world ﬁne
+manipulation tasks.
+The key contribution of this paper is a low-cost system for
+learning ﬁne manipulation, comprising a teleoperation system
+and a novel imitation learning algorithm. The teleoperation
+system, despite its low cost, enables tasks with high precision
+and rich contacts. The imitation learning algorithm, Action
+Chunking with Transformers (ACT), is capable of learning pre-
+cise, close-loop behavior and drastically outperforms previous
+methods. The synergy between these two parts allows learning
+of 6 ﬁne manipulation skills directly in the real-world, such as
+opening a translucent condiment cup and slotting a battery with
+80-90% success, from only 10 minutes or 50 demonstration
+trajectories.
+II. RELATED WORK
+Imitation learning for robotic manipulation. Imitation learn-
+ing allows a robot to directly learn from experts. Behavioral
+cloning (BC) [44] is one of the simplest imitation learning
+algorithms, casting imitation as supervised learning from
+observations to actions. Many works have then sought to
+improve BC, for example by incorporating history with various
+architectures [39, 49, 26, 7], using a different training objective
+[17, 42], and including regularization [46]. Other works
+emphasize the multi-task or few-shot aspect of imitation
+learning [14, 25, 11], leveraging language [51, 52, 26, 7], or
+exploiting the speciﬁc task structure [43, 68, 28, 52]. Scaling
+these imitation learning algorithms with more data has led
+to impressive systems that can generalize to new objects,
+instructions, or scenes [15, 26, 7, 32]. In this work, we focus
+on building an imitation learning system that is low-cost yet
+capable of performing delicate, ﬁne manipulation tasks. We
+tackle this from both hardware and software, by building a
+high-performance teleoperation system, and a novel imitation
+learning algorithm that drastically improves previous methods
+on ﬁne manipulation tasks.
+Addressing compounding errors. A major shortcoming of BC
+is compounding errors, where errors from previous timesteps
+accumulate and cause the robot to drift off of its training
+distribution, leading to hard-to-recover states [47, 64]. This
+problem is particularly prominent in the ﬁne manipulation
+setting [29]. One way to mitigate compounding errors is to
+allow additional on-policy interactions and expert corrections,
+such as DAgger [47] and its variants [30, 40, 24]. However,
+expert annotation can be time-consuming and unnatural with
+a teleoperation interface [29]. One could also inject noise at
+demonstration collection time to obtain datasets with corrective
+behavior [36], but for ﬁne manipulation, such noise injection
+can directly lead to task failure, reducing the dexterity of
+teleoperation system. To circumvent these issues, previous
+works generate synthetic correction data in an ofﬂine manner
+[16, 29, 70]. While they are limited to settings where low-
+dimensional states are available, or a speciﬁc type of task like
+grasping. Due to these limitations, we need to address the
+compounding error problem from a different angle, compatible
+with high-dimensional visual observations. We propose to
+reduce the effective horizon of tasks through action chunking,
+i.e., predicting an action sequence instead of a single action,
+and then ensemble across overlapping action chunks to produce
+trajectories that are both accurate and smooth.
+Bimanual manipulation. Bimanual manipulation has a long
+history in robotics, and has gained popularity with the lowering
+of hardware costs. Early works tackle bimanual manipulation
+from a classical control perspective, with known environment
+dynamics [54, 48], but designing such models can be time-
+consuming, and they may not be accurate for objects with
+complex physical properties. More recently, learning has been
+incorporated into bimanual systems, such as reinforcement
+learning [9, 10], imitating human demonstrations [34, 37, 59,
+67, 32], or learning to predict key points that chain together

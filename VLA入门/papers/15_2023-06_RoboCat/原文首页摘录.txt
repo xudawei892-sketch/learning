@@ -1,0 +1,88 @@
+来源：https://arxiv.org/pdf/2306.11706
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Published in Transactions on Machine Learning Research (12/2023)
+RoboCat:
+A Self-Improving Generalist Agent for Robotic
+Manipulation
+Konstantinos Bousmalis*, Giulia Vezzani*, Dushyant Rao*, Coline Devin*, Alex X. Lee*, Maria Bauza*,
+Todor Davchev*, Yuxiang Zhou*, Agrim Gupta*,1, Akhil Raju , Antoine Laurens , Claudio Fantacci ,
+Valentin Dalibard , Martina Zambelli , Murilo F. Martins , Rugile Pevceviciute , Michiel Blokzijl ,
+Misha Denil , Nathan Batchelor , Thomas Lampe , Emilio Parisotto , Konrad Żołna , Scott Reed ,
+Sergio Gómez Colmenarejo , Jon Scholz , Abbas Abdolmaleki , Oliver Groth , Jean-Baptiste Regli ,
+Oleg Sushkov , Tom Rothörl , José Enrique Chen , Yusuf Aytar , Dave Barker , Joy Ortiz , Mar-
+tin Riedmiller , Jost Tobias Springenberg , Raia Hadsell†, Francesco Nori†, and Nicolas Heess†
+All authors are affiliated with Google DeepMind, *Equal contributions, †Equal senior contributions, 1Work done during an
+internship
+Reviewed on OpenReview: https://openreview.net/forum?id=vsCpILiWHu
+Abstract
+The ability to leverage heterogeneous robotic experience from different robots and tasks
+to quickly master novel skills and embodiments has the potential to transform robot learn-
+ing. Inspired by recent advances in foundation models for vision and language, we propose a
+multi-embodiment, multi-task generalist agent for robotic manipulation. This agent, named
+RoboCat, is a visual goal-conditioned decision transformer capable of consuming action-
+labelled visual experience. This data spans a large repertoire of motor control skills from
+simulated and real robotic arms with varying sets of observations and actions. With Robo-
+Cat, we demonstrate the ability to generalise to new tasks and robots, both zero-shot as well
+as through adaptation using only 100–1000 examples for the target task. We also show how
+a trained model itself can be used to generate data for subsequent training iterations, thus
+providing a basic building block for an autonomous improvement loop. We investigate the
+agent’s capabilities, with large-scale evaluations both in simulation and on three different
+real robot embodiments. We find that as we grow and diversify its training data, RoboCat
+not only shows signs of cross-task transfer, but also becomes more efficient at adapting to
+new tasks.
+1
+Introduction
+Much of real-world robot learning research has focused on developing agents for one task at a time. This
+is because, even though the cost of task design and robot experience generation is very high, leveraging
+heterogeneous robot data at scale has remained a challenging problem in the field of robotics.
+The advent of high-capacity models, such as the transformer model (Vaswani et al., 2017), has enabled
+recent successes for multi-task learning in language and vision. These developments have led to progress
+1
+arXiv:2306.11706v2  [cs.RO]  22 Dec 2023
+
+
+===== PDF 第 2 页 =====
+
+Published in Transactions on Machine Learning Research (12/2023)
+in modelling multi-modal behaviour and predicting actions with a generalist agent, Gato (Reed et al.,
+2022), being able to play Atari, caption images, chat, and show some, albeit limited, robotic manipulation
+capabilities. Specifically in robotics, recent works (Brohan et al., 2022; Driess et al., 2023) have focused
+on bridging the gap between large pretrained language models and vision-based manipulation by training
+language-conditioned transformer policies to solve multiple simple, visually-diverse tasks that have the same
+observation and action spaces.
+In this work, we propose RoboCat, a self-improving generalist agent for vision-based robotic manipulation,
+instantiated as a large transformer sequence model. Inspired by foundation models in other domains (Bom-
+masani et al., 2022), we ultimately aim for a foundation agent for manipulation to be a multi-embodiment
+agent trained on a large set of robotic episodic experience that enables it to quickly adapt, via fine-tuning,
+to a broad set of new downstream tasks. As a step towards this goal, we trained RoboCat on a very large
+dataset of diverse manipulation behaviours: precise and dexterous vision-based tasks, performed with em-
+bodiments with different degrees of freedom, various observation and action specifications, and operating at
+different control frequencies. Our agent handles these variations natively without requiring common action
+or observation representations, by leveraging the transformer’s ability to input and output variable-length
+sequences based on context. It is able to successfully adapt to multiple new tasks – including new robot em-
+bodiments, unseen behaviours, objects and perceptual variants, and sim-to-real – via fine-tuning on a small
+dataset of new episodic experience of between 100 to 1000 demonstrations. This significantly reduces the cost
+of acquiring new skills and onboarding new embodiments. We further use the fine-tuned RoboCat models
+to gather additional data that is later added to train new iterations of our agent. This self-improvement
+process, illustrated in Figure 1, makes for a more capable agent, improving its cross-task transfer and fine-
+tuning capabilities to even more tasks, and demonstrating better performance on existing tasks. We therefore
+demonstrate fine-tuning to a large range of unseen tasks at multiple stages of this self-improvement process,
+in addition to generalist capabilities on training tasks.
+RoboCat is based on the Gato architecture with a VQ-GAN encoder (Esser et al., 2021) pretrained on a
+broad set of images; this choice of encoder enables fast training and iteration. We specify tasks via visual
+goal-conditioning, which has the desirable property that any image in a trajectory can be labelled as a valid
+“hindsight goal” (Andrychowicz et al., 2017) for all time steps leading up to it. This means that hindsight
+goals in existing data can be extracted without additional human supervision and that even suboptimal data
+collected by the agent can be incorporated back into the training set for self-improvement. Additionally,
+visual goals provide an intuitive interface to indicate to the robot which task it should perform.
+Our main contributions in this work are outlined below: (1) we demonstrate, for the first time, that a large
+transformer sequence model can solve a large set of dexterous tasks on multiple real robotic embodiments
+with differing observation and action specifications; (2) we investigate RoboCat’s capabilities in adapting to
+unseen tasks, with just a small dataset of expert demonstrations, lowering the bar of learning a new skill,
+compared to baselines; (3) we show that it is possible to incorporate these skills back to the generalist with a
+simple but effective self-improvement process; and (4) we show that by scaling and broadening the training
+data, RoboCat performs better on training tasks and is more efficient at fine-tuning.
+The rest of the paper is structured as follows. We first describe RoboCat and the self-improvement loop in
+Section 2. We introduce the embodiments, tasks, and object sets that we have used in this work in Section 3.
+2

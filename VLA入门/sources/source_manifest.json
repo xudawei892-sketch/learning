@@ -1,0 +1,72 @@
+{
+  "retrieval_date": "2026-10-12",
+  "branch": "main",
+  "git_commit": "not_recorded",
+  "files": [
+    {
+      "file": "act-README.md",
+      "sha256": "5059f601c1f0409556fd467150b99e93208de5d5594e9049f87ca92b24a5e7a2",
+      "bytes": 3500
+    },
+    {
+      "file": "aloha-unleashed-index.html",
+      "sha256": "bdf98219f2cabfe570f3c32d7d0433df89e7816572861fb482c64922007ac191",
+      "bytes": 12588
+    },
+    {
+      "file": "diffusion_policy-README.md",
+      "sha256": "51b6717d694a4ea4b476cf07c64651dc58643402beb0a27cda38a87cc58334b0",
+      "bytes": 25219
+    },
+    {
+      "file": "groot-README.md",
+      "sha256": "62f6c55a356be039287416f97e03a3b5541052d038a3daec208ea9ff8045a067",
+      "bytes": 34759
+    },
+    {
+      "file": "libero-README.md",
+      "sha256": "e87d5b284da3d7c127e1bc8282ea80b5da02aad3e9272c13adc96c4eca0eaa41",
+      "bytes": 8128
+    },
+    {
+      "file": "octo-README.md",
+      "sha256": "057e41b4866d4c1c19eaf8882c5f1551594476f1b2193f52ec626833381de262",
+      "bytes": 11627
+    },
+    {
+      "file": "openpi-README.md",
+      "sha256": "567fc57766bd736664f50126cab8145af4071ca16cc5e238f2b11e369169c3b5",
+      "bytes": 23254
+    },
+    {
+      "file": "openvla-README.md",
+      "sha256": "ba8e9a2884e38a8000dafc98af4116512e37b0e143dad2f940100482bfd6b75c",
+      "bytes": 38458
+    },
+    {
+      "file": "openvla_oft-README.md",
+      "sha256": "46edf12db33742c6b303135cccc925e1499de2fd30a38bf731ea2a133dc38ae3",
+      "bytes": 3491
+    },
+    {
+      "file": "rdt-README.md",
+      "sha256": "aeebc41f97b5f6602ba106e35e3793c3b763e314b8e81ebf362f87463e7118b8",
+      "bytes": 23901
+    },
+    {
+      "file": "simpler-README.md",
+      "sha256": "81aaa39d59e41c6b60d6ccdf09c17b1f0ca284ce7cb780b62b908afac6c0dc28",
+      "bytes": 19055
+    },
+    {
+      "file": "smolvla-README.md",
+      "sha256": "79d69e66512bc9e9571e214cb42a71249977d39baff45c1acd69a8e38cba2178",
+      "bytes": 13689
+    },
+    {
+      "file": "spatialvla-README.md",
+      "sha256": "b1a65fd6bda9000447a178e19c6a3badb9943f56a8aa48ee00e6f889b5e3225a",
+      "bytes": 20623
+    }
+  ]
+}

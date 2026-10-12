@@ -1,0 +1,165 @@
+来源：https://arxiv.org/pdf/2502.19645
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Fine-Tuning Vision-Language-Action Models:
+Optimizing Speed and Success
+Moo Jin Kim1
+Chelsea Finn1
+Percy Liang1
+https://openvla-oft.github.io
+Abstract—Recent vision-language-action models (VLAs) build
+upon pretrained vision-language models and leverage diverse
+robot datasets to demonstrate strong task execution, language
+following ability, and semantic generalization. Despite these
+successes, VLAs struggle with novel robot setups and require fine-
+tuning to achieve good performance, yet how to most effectively
+fine-tune them is unclear given many possible strategies. In
+this work, we study key VLA adaptation design choices such
+as different action decoding schemes, action representations,
+and learning objectives for fine-tuning, using OpenVLA as our
+representative base model. Our empirical analysis informs an
+Optimized Fine-Tuning (OFT) recipe that integrates parallel
+decoding, action chunking, a continuous action representation,
+and a simple L1 regression-based learning objective to altogether
+improve inference efficiency, policy performance, and flexibility
+in the model’s input-output specifications. We propose OpenVLA-
+OFT, an instantiation of this recipe, which sets a new state of the
+art on the LIBERO simulation benchmark, significantly boosting
+OpenVLA’s average success rate across four task suites from
+76.5% to 97.1% while increasing action generation throughput
+by 26×. In real-world evaluations, our fine-tuning recipe enables
+OpenVLA to successfully execute dexterous, high-frequency con-
+trol tasks on a bimanual ALOHA robot and outperform other
+VLAs (π0 and RDT-1B) fine-tuned using their default recipes,
+as well as strong imitation learning policies trained from scratch
+(Diffusion Policy and ACT) by up to 15% (absolute) in average
+success rate. We release code for OFT and pretrained model
+checkpoints at https://openvla-oft.github.io.
+I. INTRODUCTION
+Recent vision-language-action models (VLAs)—robot poli-
+cies built by fine-tuning pretrained vision-language models on
+large-scale robot datasets for low-level robotic control—have
+demonstrated strong task performance, semantic generaliza-
+tion, and language following abilities across diverse robots and
+tasks [4, 34, 24, 23, 7, 15, 8, 53, 58, 3]. Despite their strengths,
+fine-tuning is crucial for satisfactory deployment of VLAs on
+novel robots and tasks, yet it is unclear what the most effective
+approach for adaptation is given the large design space. A
+robotics practitioner who wishes to fine-tune a VLA to a new
+robot setup and task may default to using the same training
+recipe used for pretraining (or a parameter-efficient variant),
+but it is not obvious whether this would yield the best policy,
+and there is limited empirical analysis of alternative fine-tuning
+approaches in the literature.
+1Stanford University. Correspondence to: Moo Jin Kim <moojink@cs.
+stanford.edu>, Chelsea Finn <cbfinn@cs.stanford.edu>, Percy
+Liang <pliang@cs.stanford.edu>.
+Prior work has begun exploring VLA adaptation strategies,
+with Kim et al. [23] proposing parameter-efficient fine-tuning
+via LoRA. However, their autoregressive action generation
+remains too slow (3-5 Hz) for high-frequency control (25-
+50+ Hz), and both LoRA and full fine-tuning of autoregressive
+VLAs often yield unsatisfactory performance in bimanual ma-
+nipulation tasks [54, 27, 3]. While recent approaches improve
+efficiency through better action tokenization schemes [2, 38],
+achieving 2 to 13× speedups, significant latency between
+action chunks (e.g., 750 ms for the recent FAST approach [38])
+still limits real-time deployment on high-frequency bimanual
+robots. Exploring alternative VLA adaptation approaches that
+achieve both satisfactory speed and quality remains an under-
+explored area of research.
+In this work, we study key design decisions for adapt-
+ing VLAs to novel robots and tasks using OpenVLA, a
+representative autoregressive VLA, as our base model. We
+examine three key design choices: action decoding scheme
+(autoregressive vs. parallel generation), action representation
+(discrete vs. continuous), and learning objective (next-token
+prediction vs. L1 regression vs. diffusion). Our study reveals
+several key insights that build on each other: (1) parallel
+decoding with action chunking not only boosts inference
+efficiency but also improves success rates on downstream tasks
+while enabling greater flexibility in the model’s input-output
+specifications; (2) continuous action representations further
+improve model quality compared to discrete representations;
+and (3) fine-tuning the VLA with an L1 regression objective
+yields comparable performance to diffusion-based fine-tuning
+while offering faster training convergence and inference speed.
+Building on these insights, we introduce OpenVLA-OFT:
+an instantiation of an Optimized Fine-Tuning (OFT) recipe that
+integrates parallel decoding and action chunking, continuous
+action representations, and an L1 regression objective to en-
+hance inference efficiency, task performance, and model input-
+output flexibility while maintaining algorithmic simplicity.
+We conduct experiments on both the standardized LIBERO
+simulation benchmark and dexterous tasks on a real bimanual
+ALOHA robot. In LIBERO, OpenVLA-OFT establishes a new
+state of the art by achieving 97.1% average success rate across
+four task suites, outperforming both fine-tuned OpenVLA
+policies [23] (76.5%) and π0 policies [3] (94.2%) while
+achieving a 26× speedup in action generation with 8-step
+action chunks. For real-world ALOHA tasks [56], we augment
+our recipe with FiLM [37] for enhanced language grounding,
+arXiv:2502.19645v2  [cs.RO]  28 Apr 2025
+
+
+===== PDF 第 2 页 =====
+
+Fig. 1: OpenVLA-OFT+ on the bimanual ALOHA robot. Our Optimized Fine-Tuning (OFT) recipe enhances fine-tuned OpenVLA policies through
+improved inference efficiency, model quality, and input-output flexibility. The resulting OpenVLA-OFT+ policies execute diverse dexterous manipulation tasks
+on a real-world bimanual robot at high control frequencies (25 Hz). The “+” suffix indicates the integration of feature-wise linear modulation (FiLM) [37],
+which strengthens language grounding in tasks where accurate language understanding is critical for success.
+denoting the augmented recipe as OFT+. OpenVLA-OFT+
+successfully executes dexterous bimanual tasks like folding
+clothes and manipulating target food items based on the user’s
+prompt (see Figure 1), outperforming both fine-tuned VLAs
+(π0 and RDT-1B) and prominent imitation learning policies
+trained from scratch (Diffusion Policy and ACT) by up to 15%
+(absolute) in average success rate. With 25-timestep action
+chunks, OpenVLA-OFT+ achieves 43× faster throughput than
+base OpenVLA, demonstrating that our new fine-tuning recipe
+enables real-time robot control with strong task performance
+and language following ability.
+II. RELATED WORK
+Prior works have leveraged language and vision founda-
+tion models to enhance robotic capabilities, using them as
+pretrained visual representations that accelerate robotic policy
+learning [30, 33, 31, 20, 32], for object localization in robotics
+tasks [9, 47], and for high-level planning and reasoning [1, 17,
+44, 16, 45, 18, 6]. More recently, researchers have explored
+fine-tuning vision-language models (VLMs) to directly predict
+low-level robotic control actions, producing “vision-language-
+action” models (VLAs) [4, 34, 24, 23, 7, 15, 8, 53, 58, 54,
+3, 2], which have demonstrated effective language following
+[59] and generalization to out-of-distribution test conditions
+and unseen semantic concepts. These works focus primarily on
+model development, while we focus on developing a recipe for
+fine-tuning such models, justifying individual design decisions
+with insights that we gain from our empirical analysis.
+Despite the importance of fine-tuning for real-world VLA
+deployment, empirical analysis of effective fine-tuning recipes
+remains limited. While Kim et al. [23] study various parameter
+update strategies and from their findings show that LoRA fine-
+tuning enables effective adaptation to single-arm robots oper-
+ating at low control frequencies (< 10 Hz), their analysis does
+not extend to bimanual robots with high control frequencies
+(25-50+ Hz), a more complex control scenario. We address
+this gap by exploring VLA adaptation design decisions for fast
+inference and reliable task execution on a real-world bimanual
+manipulator with a 25 Hz controller.
+Recent works by Belkhale and Sadigh [2] and Pertsch
+et al. [38] improve VLA efficiency through new action to-
+kenization schemes, using vector quantization or discrete co-
+sine transform-based compression to represent action chunks
+(sequences of actions) with fewer tokens than simple per-
+dimension binning (as used in RT-2 [4] and OpenVLA [23]).
+While these approaches achieve 2 to 13× speedups for
+autoregressive VLAs, we explore design decisions beyond
+autoregressive modeling, which remains inherently limited by
+iterative generation. Our parallel decoding approach, when
+paired with action chunking, achieves significantly greater
+speedups: 26× to 43× throughput with much lower latency
+(0.07 ms for single-arm tasks with one input image and 0.321
+ms for bimanual tasks with three input images).
+Another line of research [54, 27, 3] demonstrates effective
+VLA fine-tuning for high-frequency, bimanual manipulation
+using generative approaches like diffusion or flow match-

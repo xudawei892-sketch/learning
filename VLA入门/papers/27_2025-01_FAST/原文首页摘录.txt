@@ -1,0 +1,191 @@
+来源：https://arxiv.org/pdf/2501.09747
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+FAST: Efficient Action Tokenization for
+Vision-Language-Action Models
+Karl Pertsch∗,1,2,3, Kyle Stachowicz∗,2,
+Brian Ichter1, Danny Driess1, Suraj Nair1, Quan Vuong1, Oier Mees2, Chelsea Finn1,3, Sergey Levine1,2
+1Physical Intelligence, 2UC Berkeley, 3Stanford
+https://pi.website/research/fast
+Abstract—Autoregressive
+sequence
+models,
+such
+as
+Transformer-based
+vision-language
+action
+(VLA)
+policies,
+can be tremendously effective for capturing complex and
+generalizable robotic behaviors. However, such models require
+us to choose a tokenization of our continuous action signals,
+which determines how the discrete symbols predicted by the
+model map to continuous robot actions. We find that current
+approaches for robot action tokenization, based on simple
+per-dimension, per-timestep binning schemes, typically perform
+poorly when learning dexterous skills from high-frequency
+robot data. To address this challenge, we propose a new
+compression-based tokenization scheme for robot actions, based
+on the discrete cosine transform. Our tokenization approach,
+Frequency-space Action Sequence Tokenization (FAST), enables
+us to train autoregressive VLAs for highly dexterous and
+high-frequency tasks where standard discretization methods fail
+completely. Based on FAST, we release FAST+, a universal robot
+action tokenizer, trained on 1M real robot action trajectories.
+It can be used as a black-box tokenizer for a wide range of
+robot action sequences, with diverse action spaces and control
+frequencies. Finally, we show that, when combined with the
+π0 VLA, our method can scale to training on 10k hours of
+robot data and match the performance of diffusion VLAs, while
+reducing training time by up to 5x.
+I. INTRODUCTION
+Large, high-capacity Transformer models can be tremen-
+dously effective for capturing complex and generalizable
+robotic behaviors both from scratch [8, 69, 51, 6, 20, 62]
+and using models pre-trained for next-token prediction on
+Internet-scale image-text corpora [10, 39, 63, 7, 65]. How-
+ever, these models require choosing a tokenization of the
+continuous action signal, which determines how the discrete
+symbols predicted by the model map to continuous robot
+actions [64, 34, 41, 12]. It is widely known that a good choice
+of tokenization can be critical to the performance of sequence
+models [55, 57]. Prior robotic policies of this sort typically
+use na¨ıve tokenization strategies based on a per-dimension,
+per-timestep binning scheme [9, 10, 39]. We find that such
+methods perform poorly when learning dexterous skills with
+high-frequency control (see Figure 2, right). We observe that
+correlations between time steps are a major challenge for
+na¨ıve tokenization strategies when predicting sequences of
+∗: Core contributors
+Correspondence to: research@physicalintelligence.company
+Fig. 1: We propose FAST, a simple yet effective approach
+for tokenization of robot action trajectories via time-series
+compression. FAST enables training of autoregressive VLAs
+that solve complex dexterous manipulation tasks and gener-
+alize broadly to new scenes. We use it to train π0-FAST,
+a generalist robot policy that matches the performance of
+the state-of-the-art π0 diffusion VLA on dexterous and long-
+horizon manipulation tasks, while training 5x faster (top).
+arXiv:2501.09747v1  [cs.RO]  16 Jan 2025
+
+
+===== PDF 第 2 页 =====
+
+future actions, i.e., action “chunks”, as is common for high-
+frequency control. Highly correlated action tokens diminish
+the effectiveness of the next token prediction objective used
+in autoregressive VLAs. Intuitively, in such cases low token
+prediction loss can often be achieved with mappings as trivial
+as simply copying the most recent action token, leaving models
+in poor local optima.
+In this work, we propose a new tokenization strategy
+from first principles. Our key insight is that robot action
+signals need to be compressed before training, to reduce
+correlation between consecutive tokens. We take inspiration
+from compression-based tokenization strategies, such as the
+byte-pair encoding method commonly used by language mod-
+els [27, 57]. However, since robotic actions are continuous,
+the corresponding compression strategy should be chosen
+accordingly. We therefore base our method off of the discrete
+cosine transform (DCT) encoding, which is widely used for
+compressing continuous signals such as images (e.g., JPEG
+compression). We find that the resulting tokenization approach,
+Frequency-space Action Sequence Tokenization (FAST), en-
+ables us to train autoregressive VLA policies via simple
+next token prediction (see Figure 2, left) for highly dexter-
+ous and high-frequency tasks where standard discretization
+methods fail entirely. Additionally, FAST for the first time
+enables efficient VLA training on the recently introduced
+DROID dataset [38], a large-scale multitask “in-the-wild”
+robot manipulation dataset. The resulting policy is the first
+language-conditioned generalist manipulation policy that can
+be successfully evaluated zero-shot in unseen environments,
+simply by prompting it in natural language.
+Based on FAST, we develop FAST+, a universal robot ac-
+tion tokenizer, trained on 1M real robot action trajectories that
+cover a large diversity of robot embodiments, action spaces
+and control frequencies. We demonstrate that the FAST+ to-
+kenizer effectively tokenizes a wide range of robot action
+sequences, from single-arm to bi-manual and mobile robots,
+and is a good off-the-shelf tokenizer for training autoregressive
+VLA models. When integrated with the π0 VLA, FAST-based
+autoregressive VLAs scale to training on 10k hours of robot
+data and achieve performance comparable to diffusion-based
+VLAs across a variety of tasks, while reducing training time
+by up to 5x (see Figure 1).
+II. RELATED WORK
+Tokenization for language, text, and audio. Tokenization is
+a key component of training pipelines for modern transformer-
+based autoregressive sequence models, and the choice of
+tokenization approach can have significant impact on model
+training and downstream performance [55]. While there are
+multiple works exploring the training of “tokenization-free”
+language models [28, 53] that directly operate on bit streams,
+most language models today rely on a text tokenization
+stage prior to training. A common approach is byte pair
+encoding [27, 55], which compresses input text by merging
+frequently occurring token sequences into new tokens. For
+images, learned compression schemes present an effective
+DCT
+Vision-Language-Action Model
+Vision-Language-Action Model
+Vision-Language-Action Model
+“fold the shirt”
+“fold the shirt”
+“fold the shirt”
+FAST
+OpenVLA-style
+Score
+Data Control Frequency (Hz)
+2
+10
+20
+5
+10
+8
+6
+4
+2
+0
+Comparing Action Tokenizers across 
+Control Frequencies
+FAST Action 
+tokenization
+High-
+Frequency 
+Robot Data
+Fig. 2: Left: FAST tokenization enables training of autoregres-
+sive Transformers for dexterous robot control via simple next
+token prediction. Right: FAST outperforms popular binning
+tokenization schemes, e.g., used in OpenVLA [39], particu-
+larly for high-frequency robot data.
+approach: input images can be represented as “soft tokens”
+produced by a pre-trained vision encoder [44], and full au-
+toregressive image input-output can be achieved with a vector-
+quantizing autoencoder [22, 59]. Similar approaches can be
+extended to the video domain [66]. In audio generation and
+speech synthesis, which share the time-series structure of ac-
+tion prediction, state-of-the-art models typically encode time-
+series audio data using either frequency-domain spectrogram
+images [29] or using learned vector quantizers [68].
+Vision-language-action models. Recently, multiple works
+have developed generalist robot policies [9, 51, 6, 10, 20, 39,
+62, 11] that are trained on increasingly large robot learning
+datasets [52, 38, 60, 24, 47, 35]. One promising approach for
+training generalist policies are vision-language-action models
+(VLAs; [10, 17, 39, 67, 7, 63, 73, 71, 13, 11]). VLAs fine-
+tune vision-language models, that are pre-trained on internet-
+scale image and text data, for robot control. This has multiple
+benefits: using large vision-language model backbones, with
+billions of parameters, provides policies with the necessary
+expressivity for fitting large robot datasets. Reusing weights
+pre-trained on internet-scale datasets also improves the ability
+of VLAs to follow diverse language commands and generalize,
+e.g., to new objects and scene backgrounds [10, 39, 67, 63, 36].
+Most VLA models today are confined to rather simple, low-
+frequency control tasks, particularly models that use the most
+common autoregressive VLA design [10, 39]. We show that
+this is a direct consequence of the action tokenization schemes
+employed by these models, which make training on dexterous
+tasks challenging. We introduce a new action tokenization

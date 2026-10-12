@@ -1,0 +1,186 @@
+来源：https://arxiv.org/pdf/2310.08864
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Open X-Embodiment: Robotic Learning Datasets and RT-X Models
+Open X-Embodiment Collaboration0
+robotics-transformer-x.github.io
+Abby O’Neill34, Abdul Rehman37, Abhinav Gupta4, Abhiram Maddukuri45, Abhishek Gupta46, Abhishek Padalkar10, Abraham Lee34,
+Acorn Pooley11, Agrim Gupta28, Ajay Mandlekar22, Ajinkya Jain15, Albert Tung28, Alex Bewley11, Alex Herzog11, Alex Irpan11,
+Alexander Khazatsky28, Anant Rai23, Anchit Gupta19, Andrew Wang34, Andrey Kolobov20, Anikait Singh11,34, Animesh Garg9,
+Aniruddha Kembhavi1, Annie Xie28, Anthony Brohan11, Antonin Raffin10, Archit Sharma28, Arefeh Yavary35, Arhan Jain46, Ashwin Balakrishna32,
+Ayzaan Wahid11, Ben Burgess-Limerick25, Beomjoon Kim17, Bernhard Sch¨olkopf18, Blake Wulfe32, Brian Ichter11, Cewu Lu27,8, Charles Xu34,
+Charlotte Le34, Chelsea Finn11,28, Chen Wang28, Chenfeng Xu34, Cheng Chi5,28, Chenguang Huang38, Christine Chan11,
+Christopher Agia28, Chuer Pan28, Chuyuan Fu11, Coline Devin11, Danfei Xu9, Daniel Morton28, Danny Driess11, Daphne Chen46, Deepak Pathak4,
+Dhruv Shah34, Dieter B¨uchler18, Dinesh Jayaraman42, Dmitry Kalashnikov11, Dorsa Sadigh11, Edward Johns14, Ethan Foster28,
+Fangchen Liu34, Federico Ceola16, Fei Xia11, Feiyu Zhao13, Felipe Vieira Frujeri20, Freek Stulp10, Gaoyue Zhou23, Gaurav S. Sukhatme43,
+Gautam Salhotra43,15, Ge Yan36, Gilbert Feng34, Giulio Schiavi7, Glen Berseth41,21, Gregory Kahn34, Guangwen Yang33,
+Guanzhi Wang3,22, Hao Su36, Hao-Shu Fang27, Haochen Shi28, Henghui Bao43, Heni Ben Amor2, Henrik I Christensen36, Hiroki Furuta31,
+Homanga Bharadhwaj4,19, Homer Walke34, Hongjie Fang27, Huy Ha5,28, Igor Mordatch11, Ilija Radosavovic34, Isabel Leal11,
+Jacky Liang11, Jad Abou-Chakra25, Jaehyung Kim17, Jaimyn Drake34, Jan Peters29, Jan Schneider18, Jasmine Hsu11, Jay Vakil19,
+Jeannette Bohg28, Jeffrey Bingham11, Jeffrey Wu34, Jensen Gao28, Jiaheng Hu30, Jiajun Wu28, Jialin Wu12, Jiankai Sun28, Jianlan Luo34,
+Jiayuan Gu36, Jie Tan11, Jihoon Oh31, Jimmy Wu24, Jingpei Lu36, Jingyun Yang28, Jitendra Malik34, Jo˜ao Silv´erio10, Joey Hejna28,
+Jonathan Booher28, Jonathan Tompson11, Jonathan Yang28, Jordi Salvador1, Joseph J. Lim17, Junhyek Han17, Kaiyuan Wang36,
+Kanishka Rao11, Karl Pertsch34,28, Karol Hausman11, Keegan Go15, Keerthana Gopalakrishnan11, Ken Goldberg34, Kendra Byrne11,
+Kenneth Oslund11, Kento Kawaharazuka31, Kevin Black34, Kevin Lin28, Kevin Zhang4, Kiana Ehsani1, Kiran Lekkala43, Kirsty Ellis41,
+Krishan Rana25, Krishnan Srinivasan28, Kuan Fang34, Kunal Pratap Singh6, Kuo-Hao Zeng1, Kyle Hatch32, Kyle Hsu28, Laurent Itti43,
+Lawrence Yunliang Chen34, Lerrel Pinto23, Li Fei-Fei28, Liam Tan34, Linxi ”Jim” Fan22, Lionel Ott7, Lisa Lee11, Luca Weihs1,
+Magnum Chen13, Marion Lepert28, Marius Memmel46, Masayoshi Tomizuka34, Masha Itkina32, Mateo Guaman Castro46, Max Spero28, Maximilian Du28,
+Michael Ahn11, Michael C. Yip36, Mingtong Zhang39, Mingyu Ding34, Minho Heo17, Mohan Kumar Srirama4, Mohit Sharma4,
+Moo Jin Kim28, Muhammad Zubair Irshad32, Naoaki Kanazawa31, Nicklas Hansen36, Nicolas Heess11, Nikhil J Joshi11, Niko Suenderhauf25,
+Ning Liu13, Norman Di Palo14, Nur Muhammad Mahi Shafiullah23, Oier Mees38, Oliver Kroemer4, Osbert Bastani42, Pannag R Sanketi11,
+Patrick ”Tree” Miller32, Patrick Yin46, Paul Wohlhart11, Peng Xu11, Peter David Fagan37, Peter Mitrano40, Pierre Sermanet11, Pieter Abbeel34,
+Priya Sundaresan28, Qiuyu Chen46, Quan Vuong11, Rafael Rafailov11,28, Ran Tian34, Ria Doshi34, Roberto Mart’in-Mart’in30,
+Rohan Baijal46, Rosario Scalise46, Rose Hendrix1, Roy Lin34, Runjia Qian13, Ruohan Zhang28, Russell Mendonca4, Rutav Shah30,
+Ryan Hoque34, Ryan Julian11, Samuel Bustamante10, Sean Kirmani11, Sergey Levine11,34, Shan Lin36, Sherry Moore11, Shikhar Bahl4,
+Shivin Dass43,30, Shubham Sonawani2, Shubham Tulsiani4, Shuran Song5, Sichun Xu11, Siddhant Haldar23, Siddharth Karamcheti28,
+Simeon Adebola34, Simon Guist18, Soroush Nasiriany30, Stefan Schaal15, Stefan Welker11, Stephen Tian28, Subramanian Ramamoorthy37,
+Sudeep Dasari4, Suneel Belkhale28, Sungjae Park17, Suraj Nair32, Suvir Mirchandani28, Takayuki Osa31, Tanmay Gupta1, Tatsuya Harada31,26,
+Tatsuya Matsushima31, Ted Xiao11, Thomas Kollar32, Tianhe Yu11, Tianli Ding11, Todor Davchev11, Tony Z. Zhao28,
+Travis Armstrong11, Trevor Darrell34, Trinity Chung34, Vidhi Jain11,4, Vikash Kumar4, Vincent Vanhoucke11, Vitor Guizilini32, Wei Zhan34,
+Wenxuan Zhou11,4, Wolfram Burgard44, Xi Chen11, Xiangyu Chen13, Xiaolong Wang36, Xinghao Zhu34, Xinyang Geng34, Xiyuan Liu13,
+Xu Liangwei13, Xuanlin Li36, Yansong Pang11, Yao Lu11, Yecheng Jason Ma42, Yejin Kim1, Yevgen Chebotar11, Yifan Zhou2,
+Yifeng Zhu30, Yilin Wu4, Ying Xu11, Yixuan Wang39, Yonatan Bisk4, Yongqiang Dou33, Yoonyoung Cho17, Youngwoon Lee34, Yuchen Cui28,
+Yue Cao13, Yueh-Hua Wu36, Yujin Tang11,31, Yuke Zhu30, Yunchu Zhang46, Yunfan Jiang28, Yunshuang Li42, Yunzhu Li39,
+Yusuke Iwasawa31, Yutaka Matsuo31, Zehan Ma34, Zhuo Xu11, Zichen Jeff Cui23, Zichen Zhang1, Zipeng Fu28, Zipeng Lin34
+Fig. 1: We propose an open, large-scale dataset for robot learning curated from 21 institutions across the globe. The dataset represents
+diverse behaviors, robot embodiments and environments, and enables learning generalized robotic policies.
+Abstract— Large, high-capacity models trained on diverse
+datasets have shown remarkable successes on efficiently tackling
+downstream applications. In domains from NLP to Computer
+Vision, this has led to a consolidation of pretrained models,
+with general pretrained backbones serving as a starting point
+for many applications. Can such a consolidation happen in
+robotics? Conventionally, robotic learning methods train a
+separate model for every application, every robot, and even
+every environment. Can we instead train “generalist” X-robot
+policy that can be adapted efficiently to new robots, tasks,
+arXiv:2310.08864v9  [cs.RO]  14 May 2025
+
+
+===== PDF 第 2 页 =====
+
+and environments? In this paper, we provide datasets in
+standardized data formats and models to make it possible to
+explore this possibility in the context of robotic manipulation,
+alongside experimental results that provide an example of
+effective X-robot policies. We assemble a dataset from 22
+different robots collected through a collaboration between 21
+institutions, demonstrating 527 skills (160266 tasks). We show
+that a high-capacity model trained on this data, which we call
+RT-X, exhibits positive transfer and improves the capabilities of
+multiple robots by leveraging experience from other platforms.
+The project website is robotics-transformer-x.github.io.
+I. INTRODUCTION
+A central lesson from advances in machine learning and
+artificial intelligence is that large-scale learning from di-
+verse datasets can enable capable AI systems by providing
+for general-purpose pretrained models. In fact, large-scale
+general-purpose models typically trained on large and di-
+verse datasets can often outperform their narrowly targeted
+counterparts trained on smaller but more task-specific data.
+For instance, open-vocab classifiers (e.g., CLIP [1]) trained
+on large datasets scraped from the web tend to outperform
+fixed-vocabulary models trained on more limited datasets,
+and large language models [2, 3] trained on massive text
+corpora tend to outperform systems that are only trained on
+narrow task-specific datasets. Increasingly, the most effective
+way to tackle a given narrow task (e.g., in vision or NLP)
+is to adapt a general-purpose model. However, these lessons
+are difficult to apply in robotics: any single robotic domain
+might be too narrow, and while computer vision and NLP can
+leverage large datasets sourced from the web, comparably
+large and broad datasets for robotic interaction are hard to
+come by. Even the largest data collection efforts still end
+up with datasets that are a fraction of the size and diversity
+of benchmark datasets in vision (5-18M) [4, 5] and NLP
+(1.5B-4.5B) [6, 7]. More importantly, such datasets are often
+still narrow along some axes of variation, either focusing on
+a single environment, a single set of objects, or a narrow
+range of tasks. How can we overcome these challenges in
+robotics and move the field of robotic learning toward large
+data regime that has been so successful in other domains?
+Inspired by the generalization made possible by pretrain-
+ing large vision or language models on diverse data, we
+take the perspective that the goal of training generalizable
+robot policies requires X-embodiment training, i.e., with
+data from multiple robotic platforms. While each individual
+robotic learning dataset might be too narrow, the union of
+all such datasets provides a better coverage of variations
+01Allen Institute for AI; 2Arizona State University; 3California Institute of Tech-
+nology; 4Carnegie Mellon University; 5Columbia University; 6EPFL; 7ETH Z¨urich;
+8Flexiv Robotics; 9Georgia Institute of Technology; 10German Aerospace Center;
+11Google DeepMind; 12Google Research; 13IO-AI TECH; 14Imperial College Lon-
+don; 15Intrinsic LLC; 16Istituto Italiano di Tecnologia; 17Korea Advanced Institute
+of Science & Technology; 18Max Planck Institute; 19Meta AI; 20Microsoft Re-
+search; 21Mila Quebec; 22NVIDIA; 23New York University; 24Princeton University;
+25Queensland University of Technology; 26RIKEN; 27Shanghai Jiao Tong University;
+28Stanford University; 29Technische Universit¨at Darmstadt; 30The University of Texas
+at Austin;
+31The University of Tokyo;
+32Toyota Research Institute;
+33Tsinghua
+University; 34University of California, Berkeley; 35University of California, Davis;
+36University of California, San Diego; 37University of Edinburgh; 38University of
+Freiburg;
+39University of Illinois Urbana-Champaign;
+40University of Michigan;
+41University of Montreal; 42University of Pennsylvania; 43University of Southern
+California; 44University of Technology, Nuremberg; 45University of Texas at Austin;
+46University of Washington
+in environments and robots. Learning generalizable robot
+policies requires developing methods that can utilize X-
+embodiment data, tapping into datasets from many labs,
+robots, and settings. Even if such datasets in their current
+size and coverage are insufficient to attain the impressive
+generalization results that have been demonstrated by large
+language models, in the future, the union of such data can
+potentially provide this kind of coverage. Because of this, we
+believe that enabling research into X-embodiment robotic
+learning is critical at the present juncture.
+Following this rationale, we have two goals: (1) Evaluate
+whether policies trained on data from many different robots
+and environments enjoy the benefits of positive transfer,
+attaining better performance than policies trained only on
+data from each evaluation setup. (2) Organize large robotic
+datasets to enable future research on X-embodiment models.
+We focus our work on robotic manipulation. Addressing
+goal (1), our empirical contribution is to demonstrate that
+several recent robotic learning methods, with minimal mod-
+ification, can utilize X-embodiment data and enable positive
+transfer. Specifically, we train the RT-1 [8] and RT-2 [9]
+models on 9 different robotic manipulators. We show that
+the resulting models, which we call RT-X, can improve over
+policies trained only on data from the evaluation domain,
+exhibiting better generalization and new capabilities. Ad-
+dressing (2), we provide the Open X-Embodiment (OXE)
+Repository, which includes a dataset with 22 different robotic
+embodiments from 21 different institutions that can enable
+the robotics community to pursue further research on X-
+embodiment models, along with open-source tools to facili-
+tate such research. Our aim is not to innovate in terms of the
+particular architectures and algorithms, but rather to provide
+the model that we trained together with data and tools to
+energize research around X-embodiment robotic learning.
+II. RELATED WORK
+Transfer across embodiments. A number of prior works
+have studied methods for transfer across robot embodiments
+in simulation [10–22] and on real robots [23–29]. These
+methods often introduce mechanisms specifically designed to
+address the embodiment gap between different robots, such
+as shared action representations [14, 30], incorporating rep-
+resentation learning objectives [17, 26], adapting the learned
+policy on embodiment information [11, 15, 18, 30, 31], and
+decoupling robot and environment representations [24]. Prior
+work has provided initial demonstrations of X-embodiment
+training [27] and transfer [25, 29, 32] with transformer
+models. We investigate complementary architectures and
+provide complementary analyses, and, in particular, study the
+interaction between X-embodiment transfer and web-scale
+pretraining. Similarly, methods for transfer across human
+and robot embodiments also often employ techniques for
+reducing the embodiment gap, i.e. by translating between
+domains or learning transferable representations [33–43]. Al-
+ternatively, some works focus on sub-aspects of the problem
+such as learning transferable reward functions [17, 44–48],
+goals [49, 50], dynamics models [51], or visual representa-
+tions [52–59] from human video data. Unlike most of these

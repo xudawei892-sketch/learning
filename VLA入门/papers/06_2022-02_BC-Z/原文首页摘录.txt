@@ -1,0 +1,105 @@
+来源：https://arxiv.org/pdf/2202.02005
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+BC-Z: Zero-Shot Task Generalization with Robotic
+Imitation Learning
+Eric Jang1∗, Alex Irpan1∗, Mohi Khansari2, Daniel Kappler2, Frederik Ebert3†,
+Corey Lynch1, Sergey Levine1,3, Chelsea Finn1,4
+1Robotics at Google
+2Everyday Robots
+3UC Berkeley
+4Stanford University
+https://sites.google.com/view/bc-z/home
+Abstract: In this paper, we study the problem of enabling a vision-based robotic
+manipulation system to generalize to novel tasks, a long-standing challenge in
+robot learning. We approach the challenge from an imitation learning perspective,
+aiming to study how scaling and broadening the data collected can facilitate such
+generalization. To that end, we develop an interactive and ﬂexible imitation learn-
+ing system that can learn from both demonstrations and interventions and can be
+conditioned on different forms of information that convey the task, including pre-
+trained embeddings of natural language or videos of humans performing the task.
+When scaling data collection on a real robot to more than 100 distinct tasks, we
+ﬁnd that this system can perform 24 unseen manipulation tasks with an average
+success rate of 44%, without any robot demonstrations for those tasks.
+Keywords: Zero-Shot Imitation Learning, Multi-Task Imitation, Deep Learning
+1
+Introduction
+One of the grand challenges in robotics is to create a general-purpose robot capable of perform-
+ing a multitude of tasks in unstructured environments based on arbitrary user commands. The key
+challenge in this endeavour is generalization: the robot must handle new environments, recognize
+and manipulate objects it has not seen before, and understand the intent of a command it has never
+been asked to execute. End-to-end learning from pixels is a ﬂexible choice for modeling the be-
+havior of such generalist robots, as it has minimal assumptions about the state representation of the
+world. With sufﬁcient real-world data, these methods should in principle enable robots to generalize
+across new tasks, objects, and scenes without requiring hand-coded, task-speciﬁc representations.
+However, realizing this goal has generally remained elusive. In this paper, we study the problem of
+enabling a robot to generalize zero-shot or few-shot to new vision-based manipulation tasks.
+We study this problem using the framework of imitation learning. Prior works on imitation learning
+have shown one-shot or zero-shot generalization to new objects [1, 2, 3, 4, 5] and to new object
+goal conﬁgurations [6, 7]. However, zero-shot generalization to new tasks remains a challenge,
+particularly when considering vision-based manipulation tasks that cover a breadth of skills (e.g.,
+wiping, pushing, pick-and-place) with diverse objects. Achieving such generalization depends on
+solving challenges relating to scaling up data collection and learning algorithms for diverse data.
+We develop an interactive imitation learning system with two key properties that enable high-quality
+data collection and generalization to entirely new tasks. First, our system incorporates shared auton-
+omy into teleoperation to allow us to collect both raw demonstration data and human interventions
+to correct the robot’s current policy. Second, our system ﬂexibly conditions the policy on different
+forms of task speciﬁcation, including a language instruction or a video of a person performing the
+task. Unlike discrete one-hot task identiﬁers [8], these continuous forms of task speciﬁcation can in
+principle enable the robot to generalize zero-shot or few-shot to new tasks by providing a language
+or video command of the new task at test time. These properties have been explored previously; our
+aim is to empirically study whether these ideas scale to a broad range of real-world tasks.
+*Equal Contribution
+†Work done while author was at Google
+5th Conference on Robot Learning (CoRL 2021), London, UK.
+arXiv:2202.02005v1  [cs.RO]  4 Feb 2022
+
+
+===== PDF 第 2 页 =====
+
+Figure 1: Overview of BC-Z. We collect a large-scale dataset (25,877 episodes) of 100 diverse manipulation
+tasks, and train a 7-DoF multi-task policy that conditions on task language strings or human video. We show
+this system produces a policy that is capable of generalizing zero-shot to new unseen tasks.
+Our main contribution is an empirical study of a large-scale interactive imitation learning system that
+solves a breadth of tasks, including zero-shot and few-shot generalization to tasks not seen during
+training. Using this system, we collect a large dataset of 100 robotic manipulation tasks, through
+a combination of expert teleoperation and a shared autonomy process where the human operator
+“coaches” the learned policy by ﬁxing its mistakes. Across 12 robots, 7 different operators collected
+25,877 robot demonstrations that totaled 125 hours of robot time, as well as 18,726 human videos
+of the same tasks. At test time, the system is capable of performing 24 unseen manipulation tasks
+between objects that have never previously appeared together in the same scene. These closed-
+loop visuomotor policies perform asynchronous inference and control at 10Hz, amounting to well
+over 100 decisions per episode. We open-source the demonstrations used to train this policy at
+https://www.kaggle.com/google/bc-z-robot.
+2
+Related Work
+Imitation learning has been successful in learning grasping and pick-place tasks from low-
+dimensional state [9, 10, 11, 12, 13, 14, 15]. Deep learning has enabled imitation learning directly
+from raw image observations [8, 16, 17]. In this work, we focus on enabling zero-shot and few-shot
+generalization to new tasks in an imitation learning framework.
+Multiple prior imitation learning works have achieved different forms of generalization, includ-
+ing one-shot generalization to novel objects [1, 2, 3, 4, 18], to novel object conﬁgurations [19],
+and to novel goal conﬁgurations [6, 7, 20], as well as zero-shot generalization to new objects [5],
+scenes [21], and goal conﬁgurations [22]. Many of these works adapt to the new scenario by condi-
+tioning on a robot demonstration [1, 2], a video of a human [3, 4], a language instruction [23, 24],
+or a goal image [21]. Our system ﬂexibly conditions on either a video of a human or a language
+instruction, and we focus on achieving zero-shot (language) and few-shot (video) generalization to
+entirely new 7-DoF manipulation tasks on a real robot, including scenarios without goal images and
+where task-relevant objects are never encountered together in the training data.
+It is standard to collect demonstrations via teleoperation [25] or kinesthetic teaching [10], and active
+learning methods such as DAgger [26] help reduce distribution shift for the learner. Unfortunately,
+DAgger and some of its variants [27, 28] are notoriously difﬁcult to apply to robotic manipulation
+because they necessitate an interface where the expert must annotate the correct action when not in
+control of the robot policy. Inspired by recent works in autonomous driving, HG-DAgger [29] and
+EIL [30], our system instead only requires the expert to intervene when they believe the policy is
+likely to make an error and allows the expert to temporarily take full control to put the policy back
+on track. The resulting data collection scheme is easy to use and helps address distribution shift.
+Furthermore, the rate of expert interventions during data collection can be used as a live evaluation
+metric, which we empirically ﬁnd correlates with policy success.
+Beyond imitation learning, generalization has been studied in a number of other robot learning
+works. This includes works that generalize skills to novel objects [31, 32, 33, 34, 35], to novel
+environments [36], from simulation to reality [37, 38, 39, 40, 41], and to new manipulation skills
+and objects [42, 43, 44, 45]. We focus on the last case of generalizing to novel tasks, but unlike
+these prior works, we tackle a large suite of 100 challenging tasks that involve 7 DoF control at 10
+Hz and involve more than 100 decisions within an episode to solve the task.
+2

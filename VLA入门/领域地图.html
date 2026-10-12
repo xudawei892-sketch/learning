@@ -1,0 +1,73 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>领域地图</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:17px/1.8 system-ui,"Microsoft YaHei",sans-serif;color:#243047;background:#fbfcff}h1,h2,h3{line-height:1.4;color:#122440}a{color:#1756ba;text-decoration:none}a:hover{text-decoration:underline}table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow:auto}td,th{border:1px solid #dbe1eb;padding:9px;text-align:left}th{background:#eaf0fa}pre{padding:16px;background:#edf1f7;overflow:auto;white-space:pre-wrap}code{font-size:.92em}blockquote{border-left:4px solid #7897cc;padding:8px 18px;background:#eef3fc}nav{padding-bottom:18px;border-bottom:1px solid #dbe1eb}.card{background:white;padding:16px 22px;border:1px solid #dbe1eb;border-radius:12px;margin:16px 0}li{margin:5px 0}footer{font-size:13px;color:#68758a;margin-top:45px}</style></head><body><nav><a href="index.html">← 返回资料首页</a></nav><h1 id="vla">VLA 领域地图</h1>
+<p>箭头表示学习依赖或方法思路的联系，<strong>不表示所有后继都直接使用前者的代码或训练权重</strong>。</p>
+<pre><code class="language-mermaid">flowchart TD
+    CLIP[图文预训练：CLIP] --&gt; CP[语义加空间：CLIPort]
+    TN[视觉控制：Transporter] --&gt; CP
+    BC[行为克隆与多任务示教] --&gt; RT1[RT-1：规模化机器人策略]
+    RT1 --&gt; RT2[RT-2：VLM 输出动作 token]
+    VLM[视觉语言基础模型] --&gt; RT2
+    RT2 --&gt; OV[OpenVLA：开放 VLA 基线]
+    OXE[跨机器人数据：Open X-Embodiment] --&gt; OV
+    OXE --&gt; OCT[Octo：开放通用策略]
+    DP[Diffusion Policy：连续动作生成] --&gt; OCT
+    ACT[ACT：动作分块与时间聚合] --&gt; CH[动作块建模]
+    CH --&gt; PI[π0：VLM 加 flow 动作专家]
+    VLM --&gt; PI
+    OV --&gt; OFT[OFT：高效微调与连续预测]
+    OV --&gt; FAST[FAST：动作序列压缩 tokenization]
+    PI --&gt; PI05[π0.5：开放世界泛化]
+    SAY[SayCan：语义与技能可行性] --&gt; PLAN[高层任务分解]
+    PLAN --&gt; PI05
+</code></pre>
+<h2 id="_1">六个方向如何区分</h2>
+<table>
+<thead>
+<tr>
+<th>方向</th>
+<th>关键问题</th>
+<th>代表论文</th>
+<th>适合你在什么时候读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>语言与规划</td>
+<td>理解任务、选技能、分解长程目标</td>
+<td>SayCan、Code as Policies、PaLM-E</td>
+<td>发现「会说但不会做」时</td>
+</tr>
+<tr>
+<td>离散动作 VLA</td>
+<td>把动作变成 VLM 可以生成的 token</td>
+<td>RT-2、OpenVLA、FAST</td>
+<td>入门主线</td>
+</tr>
+<tr>
+<td>连续动作生成</td>
+<td>生成精细动作块、表达多峰行为</td>
+<td>Diffusion Policy、ACT、π0、RDT-1B</td>
+<td>主线的关键前置与扩展</td>
+</tr>
+<tr>
+<td>通用与跨机器人</td>
+<td>多个机器人如何共享经验、适配接口</td>
+<td>RT-1、RoboCat、Octo、Open X-Embodiment</td>
+<td>看预训练与迁移结论时</td>
+</tr>
+<tr>
+<td>数据与评测</td>
+<td>能力到底由哪些数据支持、如何证明泛化</td>
+<td>BridgeData、DROID、LIBERO、CALVIN、SimplerEnv、RoboCasa</td>
+<td>做任何实验前</td>
+</tr>
+<tr>
+<td>效率与空间</td>
+<td>控制时延、低成本、三维几何</td>
+<td>OFT、SmolVLA、SpatialVLA、GR00T N1</td>
+<td>确定后续研究切入点时</td>
+</tr>
+</tbody>
+</table>
+<p>这些类别会交叉。π0 同时是 VLA 与连续动作模型；FAST 是动作表示，不是一个仿真环境；Open X-Embodiment 是数据合作与模型研究，不是一种唯一动作头。</p>
+<h2 id="_2">看见一篇新文章时的定位流程</h2>
+<p>先写出它的「输入 → 主干 → 动作头 → 控制接口」。再问：它主要改了数据、空间表示、动作表示、训练目标、微调，还是推理系统？最后检查实验是否固定其他变量。如果模型与数据都换了，仅靠总成功率不能确定改进来自哪里。</p><footer>VLA 入门资料包 · 本地离线阅读 · 论文及导读范围以说明为准</footer></body></html>

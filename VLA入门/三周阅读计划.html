@@ -1,0 +1,148 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>三周阅读计划</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:17px/1.8 system-ui,"Microsoft YaHei",sans-serif;color:#243047;background:#fbfcff}h1,h2,h3{line-height:1.4;color:#122440}a{color:#1756ba;text-decoration:none}a:hover{text-decoration:underline}table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow:auto}td,th{border:1px solid #dbe1eb;padding:9px;text-align:left}th{background:#eaf0fa}pre{padding:16px;background:#edf1f7;overflow:auto;white-space:pre-wrap}code{font-size:.92em}blockquote{border-left:4px solid #7897cc;padding:8px 18px;background:#eef3fc}nav{padding-bottom:18px;border-bottom:1px solid #dbe1eb}.card{background:white;padding:16px 22px;border:1px solid #dbe1eb;border-radius:12px;margin:16px 0}li{margin:5px 0}footer{font-size:13px;color:#68758a;margin-top:45px}</style></head><body><nav><a href="index.html">← 返回资料首页</a></nav><h1 id="_1">三周阅读计划</h1>
+<p>默认每天 1–2 小时；如果深度学习和机器人都陌生，把一天内容拆成两三天。目标是理解主线并选择仿真入口，不是 21 天精读完 32 篇。</p>
+<p>每次记录：输入输出、研究动机、核心改动、证据与局限。主线论文精读摘要、方法总览和关键实验；背景论文可以先只读摘要、图和结论。</p>
+<h2 id="_2">第一周：机器人怎样从演示学动作</h2>
+<table>
+<thead>
+<tr>
+<th>天</th>
+<th>内容</th>
+<th>当天产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>快速入门、术语表、行为克隆概念</td>
+<td>画出相机→策略→动作→机器人→相机的闭环</td>
+</tr>
+<tr>
+<td>2</td>
+<td>CLIP 与 Transporter 导读，精读 CLIPort 总览</td>
+<td>解释 what/where，区分语义与几何</td>
+</tr>
+<tr>
+<td>3</td>
+<td>RoboMimic 选读、RT-1 精读</td>
+<td>写清训练数据、动作离散化、模型输入</td>
+</tr>
+<tr>
+<td>4</td>
+<td>SayCan 精读，PaLM-E 选读</td>
+<td>说明高层规划与低层动作的边界</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Diffusion Policy 精读</td>
+<td>画出从噪声动作到动作序列的生成过程</td>
+</tr>
+<tr>
+<td>6</td>
+<td>ACT 精读</td>
+<td>区分观测窗口、预测窗口、执行窗口与时间聚合</td>
+</tr>
+<tr>
+<td>7</td>
+<td>复盘；不加新论文</td>
+<td>对比 BC、ACT、Diffusion Policy 的输出与训练目标</td>
+</tr>
+</tbody>
+</table>
+<h2 id="vla">第二周：现代 VLA 主线</h2>
+<table>
+<thead>
+<tr>
+<th>天</th>
+<th>内容</th>
+<th>当天产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>8</td>
+<td>RT-2 精读</td>
+<td>解释互联网语义如何迁移到动作，列出不保证的能力</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Open X-Embodiment 精读；BridgeData、DROID 选读</td>
+<td>说明跨机器人数据统一与动作对齐</td>
+</tr>
+<tr>
+<td>10</td>
+<td>OpenVLA 第一遍：总览、数据、动作输出</td>
+<td>画出视觉编码器→语言主干→动作 token</td>
+</tr>
+<tr>
+<td>11</td>
+<td>OpenVLA 第二遍：微调与泛化实验</td>
+<td>区分预训练、目标域微调和 zero-shot</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Octo 选读，与 OpenVLA 对照</td>
+<td>比较通用策略与大型 VLM 策略，不只比参数量</td>
+</tr>
+<tr>
+<td>13</td>
+<td>π0 第一遍：动机、架构、动作专家</td>
+<td>画出视觉语言上下文→动作专家→连续动作块</td>
+</tr>
+<tr>
+<td>14</td>
+<td>π0 第二遍：flow matching、数据、实验</td>
+<td>用自己的话解释噪声、t、速度场和采样</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_3">第三周：效率、泛化与实验设计</h2>
+<table>
+<thead>
+<tr>
+<th>天</th>
+<th>内容</th>
+<th>当天产出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>15</td>
+<td>FAST 精读</td>
+<td>解释动作压缩为何影响自回归时延</td>
+</tr>
+<tr>
+<td>16</td>
+<td>OpenVLA-OFT 精读</td>
+<td>整理动作头、动作块、多图像、本体状态等改动</td>
+</tr>
+<tr>
+<td>17</td>
+<td>π0.5 精读；对照 SayCan</td>
+<td>说明开放世界评测的边界与高低层任务关系</td>
+</tr>
+<tr>
+<td>18</td>
+<td>LIBERO 精读；CALVIN 与 SimplerEnv 选读</td>
+<td>选一个评测问题，明确训练测试划分</td>
+</tr>
+<tr>
+<td>19</td>
+<td>按兴趣选 SpatialVLA / RDT / GR00T / SmolVLA</td>
+<td>写一页方向对比，说明为什么选这个方向</td>
+</tr>
+<tr>
+<td>20</td>
+<td>查看官方代码入口与仿真路线，不改代码</td>
+<td>找到观测处理、策略前向、动作反归一化、环境 step</td>
+</tr>
+<tr>
+<td>21</td>
+<td>整理实验计划与仍不懂的问题</td>
+<td>写出最小仿真实验的模型、任务、成功判据、资源需求</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_4">怎样判断真的学会了</h2>
+<p>你能不看笔记说出 OpenVLA、Octo 与 π0 的关键差别；解释为什么「会识别」不等于「会操作」；识别一篇新论文改的是数据、表示、动作头还是评测；并能指出一次成绩比较有哪些不公平条件。</p>
+<h2 id="_5">自己精读一篇的模板</h2>
+<p>先看原文和图，再用 AI 解释一个局部问题。不要让 AI 从标题补出不存在的图表。你可以问：「这张架构图里，每条箭头传递什么张量？」「这里的 zero-shot 测试排除了哪些训练数据？」「把这个动作头换成回归头，理论上会损失什么？」把答案用原文核对后记入单篇笔记。</p><footer>VLA 入门资料包 · 本地离线阅读 · 论文及导读范围以说明为准</footer></body></html>

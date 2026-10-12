@@ -1,0 +1,174 @@
+来源：https://arxiv.org/pdf/2403.12945
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+DROID: A Large-Scale In-The-Wild
+Robot Manipulation Dataset
+https://droid-dataset.github.io
+Alexander Khazatsky∗,1, Karl Pertsch∗,1,2, Suraj Nair1,3, Ashwin Balakrishna3, Sudeep Dasari4,
+Siddharth Karamcheti1, Soroush Nasiriany5, Mohan Kumar Srirama4, Lawrence Yunliang Chen2, Kirsty Ellis6,
+Peter David Fagan7, Joey Hejna1, Masha Itkina3, Marion Lepert1, Jason Ma14, Patrick Tree Miller3,
+Jimmy Wu8, Suneel Belkhale1, Shivin Dass5, Huy Ha1, Abraham Lee2, Youngwoon Lee2,16, Arhan Jain9,
+Marius Memmel9, Sungjae Park10, Ilija Radosavovic2, Kaiyuan Wang11, Albert Zhan6, Kevin Black2,
+Cheng Chi1, Kyle Hatch3, Shan Lin11, Jingpei Lu11, Abdul Rehman7, Pannag R Sanketi12,
+Archit Sharma1, Cody Simpson3, Quan Vuong12, Homer Walke2, Blake Wulfe3, Ted Xiao12, Jonathan Yang1,
+Arefeh Yavary13, Tony Z. Zhao1, Christopher Agia1, Rohan Baijal9, Mateo Guaman Castro9, Daphne Chen9,
+Qiuyu Chen9, Trinity Chung2, Jaimyn Drake2, Ethan Paul Foster1, Jensen Gao1, Vitor Guizilini3,
+David Antonio Herrera1, Minho Heo10, Kyle Hsu1, Jiaheng Hu5, Muhammad Zubair Irshad3, Donovon Jackson3,
+Charlotte Le2, Yunshuang Li14, Kevin Lin1, Roy Lin2, Zehan Ma2, Abhiram Maddukuri5, Suvir Mirchandani1,
+Daniel Morton1, Tony Nguyen3, Abby O’Neill2, Rosario Scalise9, Derick Seale3, Victor Son1, Stephen Tian1,
+Andrew Wang2, Yilin Wu4, Annie Xie1, Jingyun Yang1, Patrick Yin9, Yunchu Zhang9,
+Osbert Bastani14, Glen Berseth6, Jeannette Bohg1, Ken Goldberg2, Abhinav Gupta4, Abhishek Gupta9,
+Dinesh Jayaraman14, Joseph J. Lim10, Jitendra Malik2, Roberto Martín-Martín5, Subramanian Ramamoorthy7,
+Dorsa Sadigh1, Shuran Song1,15, Jiajun Wu1, Yuke Zhu5, Thomas Kollar3, Sergey Levine2, Chelsea Finn1
+Bathroom
+DROID
+Distributed Robot 
+Interaction Dataset
+564 Scenes
+76k Episodes
+52 Buildings
+86 Tasks / Verbs
+13 Institutions
+Dining Room
+Bedroom
+Laboratory
+Laundry Room
+Office
+Kitchen
+Fig. 1: We introduce DROID (Distributed Robot Interaction Dataset), an “in-the-wild” robot manipulation dataset with 76k trajectories or
+350 hours of interaction data, collected across 564 scenes, 86 tasks, and 52 buildings over the course of 12 months. Each DROID episode
+contains three synchronized RGB camera streams, camera calibration, depth information, and natural language instructions. We demonstrate
+that training with DROID leads to policies with higher performance, greater robustness, and improved generalization ability. We open source
+the full dataset, pre-trained model checkpoints, and a detailed guide for reproducing our robot setup.
+Abstract—
+The creation of large, diverse, high-quality robot
+manipulation datasets is an important stepping stone on the path
+toward more capable and robust robotic manipulation policies.
+However, creating such datasets is challenging: collecting robot
+∗Project Co-leads, correspondence to alexkhaz@stanford.edu,
+pertsch@berkeley.edu
+manipulation data in diverse environments poses logistical and
+safety challenges and requires substantial investments in hardware
+and human labour. As a result, even the most general robot
+manipulation policies today are mostly trained on data collected
+in a small number of environments with limited scene and task
+diversity. In this work, we introduce DROID (Distributed Robot
+Interaction Dataset), a diverse robot manipulation dataset with
+arXiv:2403.12945v2  [cs.RO]  22 Apr 2025
+
+
+===== PDF 第 2 页 =====
+
+76k demonstration trajectories or 350 hours of interaction data,
+collected across 564 scenes and 86 tasks by 50 data collectors in
+North America, Asia, and Europe over the course of 12 months.
+We demonstrate that training with DROID leads to policies with
+higher performance and improved generalization ability. We open
+source the full dataset, policy learning code, and a detailed guide
+for reproducing our robot hardware setup.
+I. INTRODUCTION
+A key feature of robot manipulation policies is their ability to
+generalize, i.e., their ability to perform a desired manipulation
+task under new lighting conditions, in new environments, or
+with new objects. Training policies that are robust to such
+variations is a crucial step towards the deployment of robots
+in everyday environments and may bring us closer to every
+roboticist’s dream: robot models that can be downloaded
+and “just work” when tested on a new robot setup. A
+central ingredient for training such generalizable policies is
+diverse training data: in computer vision and natural language
+processing, training on large and diverse datasets scraped from
+the internet yields models that work in a wide range of new
+tasks. Similarly, in robot manipulation, a number of recent
+works have demonstrated that larger, more diverse robot training
+datasets enable us to push the envelope on policy generalization,
+including positive transfer to new objects, instructions, scenes,
+and embodiments [1, 2, 14, 36, 38, 39, 47, 63]. This suggests
+that an important stepping stone on the path toward more
+capable and robust robotic manipulation policies is the creation
+of large, diverse, high-quality robot manipulation datasets.
+However, creating such datasets is challenging: in contrast to
+vision or language data, training manipulation policies typically
+requires robot manipulation data with recorded observations
+and actions, which cannot be easily scraped from the internet.
+Collecting robot manipulation data in diverse environments
+poses logistical and safety challenges when moving robots
+outside of controlled lab environments. Additionally, collecting
+data at scale requires substantial investments in hardware
+and human labour for supervision, particularly for collecting
+demonstration data. As a result, even the most general robot
+manipulation policies today are mostly trained on data collected
+in controlled, lab-like environments with limited scene and
+task diversity. To enable the next level of generalizable
+robot manipulation policy learning, the robot manipulation
+community needs more diverse datasets, collected across a
+wide range of environments and tasks.
+In this work, we introduce DROID (Distributed Robot
+Interaction Dataset), a robot manipulation dataset of unprece-
+dented diversity (see Fig. 1). DROID consist of 76k demon-
+stration trajectories or 350 hours of interaction data, collected
+across 564 scenes, 52 buildings and 86 tasks. DROID was
+collected by 18 research labs in North America, Asia, and
+Affiliations: 1Stanford University; 2University of California, Berkeley;
+3Toyota Research Institute; 4Carnegie Mellon University; 5University of
+Texas, Austin; 6University of Montreal; 7University of Edinburgh; 8Princeton
+University; 9University of Washington; 10Korea Advanced Institute of Science
+& Technology (KAIST); 11University of California, San Diego; 12Google
+DeepMind; 13University of California, Davis; 14University of Pennsylvania;
+15Columbia University; 16Yonsei University
+Europe over the course of 12 months. To streamline distributed
+data collection and ensure applicability of the final dataset to
+a wide range of research settings, all data is collected on the
+same robot hardware stack based on the popular Franka Panda
+robot arm. Each episode contains three camera views, depth
+information, camera calibration, and language annotations.
+In experiments across 6 tasks and 4 locations, from labs
+to offices and real households, we find that DROID boosts
+policy performance, robustness and generalizability by 20% on
+average over state-of-the-art approaches that leverage existing
+large-scale robot manipulation datasets [39]. We open-source
+the full DROID dataset under CC-BY 4.0 license, code for
+training policies using the dataset, and a detailed guide for
+reproducing our complete robot software and hardware setup.
+II. RELATED WORK
+a) Large datasets in machine learning: The rapid progress
+in machine learning has been closely tied to the construction
+of large and diverse datasets. Examples include ImageNet [11],
+Kitti [18], Ego4D [19] and LAION [46] in computer vision,
+Common Crawl [43] and The Pile [17] in natural language
+processing, and ShapeNet [5] and Objaverse [9, 10] in 3D
+modeling. Key to their impact is their size and diversity: by
+enabling training on larger and more diverse data, they push the
+capabilities and robustness of machine learning models. With
+DROID we aim to continue this trend for robot manipulation
+and provide a large and diverse robot manipulation dataset to
+spur progress on generalizable policy learning.
+b) Robot learning datasets: A number of prior works
+introduce datasets for robot learning of various sizes and
+diversity levels (see Table I). Broadly, these can be categorized
+into datasets collected autonomously via scripted and semi-
+random behaviors or learned agents [3, 8, 20, 26, 27, 32, 40],
+and datasets collected via human teleoperation [1, 2, 13, 14,
+24, 36, 50, 59]. Multiple works focus on increasing dataset
+diversity: RH20T [14] collects data across 33 tasks in 7 table-
+top scenes and BridgeV2 [59] collects data in 24 scenes.1
+While these datasets increase diversity, most of their data is
+collected in a small number of scenes in a single research lab
+or building.
+More recently, there has been a larger effort on pooling
+existing robot datasets into a coherent format, the Open
+X-Embodiment dataset (OXE) [39]. Albeit larger in scale
+than prior robot datasets, the OXE dataset still consists of
+individual datasets with few scenes, thus totalling around 300
+scenes at the time of writing. Our goal with the DROID
+dataset is to significantly increase the scene diversity as well
+1Note that prior works use various definitions for what constitutes a “task”
+and what constitutes a “scene”. In this work, we use the number of unique
+verbs extracted from the language instructions to represent the number of
+tasks, which is more scalable than manually defining tasks [59] yet often
+more reflective of the behavior diversity than e.g., counting the number of
+verb-object combinations [2] (see Fig. 3 for DROID’s verb distribution as an
+example). For scenes, we only count a scene as new if there is a substantial
+change of the robot’s workspace, e.g., if it gets transported to a new corner
+of the kitchen or a new room altogether, but not if only the arrangement of
+objects in front of the robot or the table cloth changes.

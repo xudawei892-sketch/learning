@@ -1,0 +1,241 @@
+来源：https://arxiv.org/pdf/2103.00020
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Learning Transferable Visual Models From Natural Language Supervision
+Alec Radford * 1 Jong Wook Kim * 1 Chris Hallacy 1 Aditya Ramesh 1 Gabriel Goh 1 Sandhini Agarwal 1
+Girish Sastry 1 Amanda Askell 1 Pamela Mishkin 1 Jack Clark 1 Gretchen Krueger 1 Ilya Sutskever 1
+Abstract
+State-of-the-art computer vision systems are
+trained to predict a ﬁxed set of predetermined
+object categories. This restricted form of super-
+vision limits their generality and usability since
+additional labeled data is needed to specify any
+other visual concept. Learning directly from raw
+text about images is a promising alternative which
+leverages a much broader source of supervision.
+We demonstrate that the simple pre-training task
+of predicting which caption goes with which im-
+age is an efﬁcient and scalable way to learn SOTA
+image representations from scratch on a dataset
+of 400 million (image, text) pairs collected from
+the internet. After pre-training, natural language
+is used to reference learned visual concepts (or
+describe new ones) enabling zero-shot transfer
+of the model to downstream tasks. We study
+the performance of this approach by benchmark-
+ing on over 30 different existing computer vi-
+sion datasets, spanning tasks such as OCR, ac-
+tion recognition in videos, geo-localization, and
+many types of ﬁne-grained object classiﬁcation.
+The model transfers non-trivially to most tasks
+and is often competitive with a fully supervised
+baseline without the need for any dataset spe-
+ciﬁc training. For instance, we match the ac-
+curacy of the original ResNet-50 on ImageNet
+zero-shot without needing to use any of the 1.28
+million training examples it was trained on. We
+release our code and pre-trained model weights at
+https://github.com/OpenAI/CLIP.
+1. Introduction and Motivating Work
+Pre-training methods which learn directly from raw text
+have revolutionized NLP over the last few years (Dai &
+Le, 2015; Peters et al., 2018; Howard & Ruder, 2018; Rad-
+ford et al., 2018; Devlin et al., 2018; Raffel et al., 2019).
+*Equal contribution 1OpenAI, San Francisco, CA 94110, USA.
+Correspondence to: <{alec, jongwook}@openai.com>.
+Task-agnostic objectives such as autoregressive and masked
+language modeling have scaled across many orders of mag-
+nitude in compute, model capacity, and data, steadily im-
+proving capabilities. The development of “text-to-text” as
+a standardized input-output interface (McCann et al., 2018;
+Radford et al., 2019; Raffel et al., 2019) has enabled task-
+agnostic architectures to zero-shot transfer to downstream
+datasets removing the need for specialized output heads or
+dataset speciﬁc customization. Flagship systems like GPT-3
+(Brown et al., 2020) are now competitive across many tasks
+with bespoke models while requiring little to no dataset
+speciﬁc training data.
+These results suggest that the aggregate supervision acces-
+sible to modern pre-training methods within web-scale col-
+lections of text surpasses that of high-quality crowd-labeled
+NLP datasets. However, in other ﬁelds such as computer
+vision it is still standard practice to pre-train models on
+crowd-labeled datasets such as ImageNet (Deng et al., 2009).
+Could scalable pre-training methods which learn directly
+from web text result in a similar breakthrough in computer
+vision? Prior work is encouraging.
+Over 20 years ago Mori et al. (1999) explored improving
+content based image retrieval by training a model to pre-
+dict the nouns and adjectives in text documents paired with
+images. Quattoni et al. (2007) demonstrated it was possi-
+ble to learn more data efﬁcient image representations via
+manifold learning in the weight space of classiﬁers trained
+to predict words in captions associated with images. Sri-
+vastava & Salakhutdinov (2012) explored deep represen-
+tation learning by training multimodal Deep Boltzmann
+Machines on top of low-level image and text tag features.
+Joulin et al. (2016) modernized this line of work and demon-
+strated that CNNs trained to predict words in image cap-
+tions learn useful image representations. They converted
+the title, description, and hashtag metadata of images in the
+YFCC100M dataset (Thomee et al., 2016) into a bag-of-
+words multi-label classiﬁcation task and showed that pre-
+training AlexNet (Krizhevsky et al., 2012) to predict these
+labels learned representations which preformed similarly
+to ImageNet-based pre-training on transfer tasks. Li et al.
+(2017) then extended this approach to predicting phrase n-
+grams in addition to individual words and demonstrated the
+ability of their system to zero-shot transfer to other image
+arXiv:2103.00020v1  [cs.CV]  26 Feb 2021
+
+
+===== PDF 第 2 页 =====
+
+Learning Transferable Visual Models From Natural Language Supervision
+2
+I1·T2
+I1·T3
+…
+I2·T1
+I2·T3
+…
+I3·T1
+I3·T2
+…
+⋮
+⋮
+⋮
+I1·T1
+I2·T2
+I3·T3
+(1) Contrastive pre-training
+Image
+Encoder
+Text
+Encoder
+Pepper the
+aussie pup
+Pepper the
+aussie pup
+Pepper the
+aussie pup
+Pepper the
+aussie pup
+T1
+T2
+T3
+…
+I1
+I2
+I3
+⋮
+(2) Create dataset classiﬁer from label text
+plane
+car
+dog
+⋮
+bird
+A photo of
+a {object}.
+⋮
+Text
+Encoder
+T1
+T2
+T3
+TN
+…
+(3) Use for zero-shot prediction
+Image
+Encoder
+I1
+I1·T2
+I1·TN
+I1·T1
+…
+…
+A photo of
+ a dog.
+TN
+IN·T1
+IN·T2
+IN·T3
+I1·TN
+I2·TN
+I3·TN
+⋮
+…
+IN
+…
+⋮
+⋱
+IN·TN
+I1·T3
+Figure 1. Summary of our approach. While standard image models jointly train an image feature extractor and a linear classiﬁer to predict
+some label, CLIP jointly trains an image encoder and a text encoder to predict the correct pairings of a batch of (image, text) training
+examples. At test time the learned text encoder synthesizes a zero-shot linear classiﬁer by embedding the names or descriptions of the
+target dataset’s classes.
+classiﬁcation datasets by scoring target classes based on
+their dictionary of learned visual n-grams and predicting the
+one with the highest score. Adopting more recent architec-
+tures and pre-training approaches, VirTex (Desai & Johnson,
+2020), ICMLM (Bulent Sariyildiz et al., 2020), and Con-
+VIRT (Zhang et al., 2020) have recently demonstrated the
+potential of transformer-based language modeling, masked
+language modeling, and contrastive objectives to learn im-
+age representations from text.
+While exciting as proofs of concept, using natural language
+supervision for image representation learning is still rare.
+This is likely because demonstrated performance on com-
+mon benchmarks is much lower than alternative approaches.
+For example, Li et al. (2017) reach only 11.5% accuracy
+on ImageNet in a zero-shot setting. This is well below the
+88.4% accuracy of the current state of the art (Xie et al.,
+2020). It is even below the 50% accuracy of classic com-
+puter vision approaches (Deng et al., 2012). Instead, more
+narrowly scoped but well-targeted uses of weak supervision
+have improved performance. Mahajan et al. (2018) showed
+that predicting ImageNet-related hashtags on Instagram im-
+ages is an effective pre-training task. When ﬁne-tuned to
+ImageNet these pre-trained models increased accuracy by
+over 5% and improved the overall state of the art at the time.
+Kolesnikov et al. (2019) and Dosovitskiy et al. (2020) have
+also demonstrated large gains on a broader set of transfer
+benchmarks by pre-training models to predict the classes of
+the noisily labeled JFT-300M dataset.
+This line of work represents the current pragmatic middle
+ground between learning from a limited amount of super-
+vised “gold-labels” and learning from practically unlimited
+amounts of raw text. However, it is not without compro-
+mises. Both works carefully design, and in the process limit,
+their supervision to 1000 and 18291 classes respectively.
+Natural language is able to express, and therefore supervise,
+a much wider set of visual concepts through its general-
+ity. Both approaches also use static softmax classiﬁers to
+perform prediction and lack a mechanism for dynamic out-
+puts. This severely curtails their ﬂexibility and limits their
+“zero-shot” capabilities.
+A crucial difference between these weakly supervised mod-
+els and recent explorations of learning image representations
+directly from natural language is scale. While Mahajan et al.
+(2018) and Kolesnikov et al. (2019) trained their models for
+accelerator years on millions to billions of images, VirTex,
+ICMLM, and ConVIRT trained for accelerator days on one
+to two hundred thousand images. In this work, we close
+this gap and study the behaviors of image classiﬁers trained
+with natural language supervision at large scale. Enabled
+by the large amounts of publicly available data of this form
+on the internet, we create a new dataset of 400 million (im-
+age, text) pairs and demonstrate that a simpliﬁed version of
+ConVIRT trained from scratch, which we call CLIP, for Con-
+trastive Language-Image Pre-training, is an efﬁcient method
+of learning from natural language supervision. We study
+the scalability of CLIP by training a series of eight models
+spanning almost 2 orders of magnitude of compute and ob-
+serve that transfer performance is a smoothly predictable
+function of compute (Hestness et al., 2017; Kaplan et al.,
+2020). We ﬁnd that CLIP, similar to the GPT family, learns
+to perform a wide set of tasks during pre-training including
+OCR, geo-localization, action recognition, and many others.
+We measure this by benchmarking the zero-shot transfer
+performance of CLIP on over 30 existing datasets and ﬁnd

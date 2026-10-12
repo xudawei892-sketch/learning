@@ -1,0 +1,122 @@
+来源：https://arxiv.org/pdf/2506.01844
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+arXiv:2506.01844v1  [cs.LG]  2 Jun 2025
+SmolVLA: A vision-language-action model
+for affordable and efficient robotics
+Mustafa Shukor∗
+Dana Aubakirova∗
+Francesco Capuano∗
+Pepijn Kooijmans
+Steven Palma
+Adil Zouitine
+Michel Aractingi
+Caroline Pascal
+Martino
+Russi
+Andres Marafioti
+Simon Alibert
+Matthieu Cord
+v
+Thomas Wolf
+Remi Cadene∗
+Hugging Face,
+Sorbonne University, v valeo.ai,
+École Normale Supérieure Paris-Saclay
+∗Core team
+Abstract
+Vision-language models (VLMs) pretrained on large-scale multimodal datasets encode rich visual and linguistic
+knowledge, making them a strong foundation for robotics. Rather than training robotic policies from scratch,
+recent approaches adapt VLMs into vision-language-action (VLA) models that enable natural language-driven
+perception and control. However, existing VLAs are typically massive–often with billions of parameters–leading
+to high training costs and limited real-world deployability. Moreover, they rely on academic and industrial
+datasets, overlooking the growing availability of community-collected data from affordable robotic platforms.
+In this work, we present SmolVLA, a small, efficient, and community-driven VLA that drastically reduces both
+training and inference costs, while retaining competitive performance. SmolVLA is designed to be trained on
+a single GPU and deployed on consumer-grade GPUs or even CPUs. To further improve responsiveness, we
+introduce an asynchronous inference stack decoupling perception and action prediction from action execution,
+allowing higher control rates with chunked action generation. Despite its compact size, SmolVLA achieves
+performance comparable to VLAs that are 10× larger. We evaluate SmolVLA on a range of both simulated
+as well as real-world robotic benchmarks and release all code, pretrained models, and training data.
+Self-Attention
+Self-Attention
+Self-Attention
+Cross-Attention
+Cross-Attention
+Self-Attention
+Task: Grasp the 
+object and put it in 
+the bin
+ State
+Noisy Actions
+[at ,at+1 … ,at+H] 
+KV
+KV
+QKV
+Vision-Language Model
+Action Expert
+SmolVLA
+Community datasets
+Affordable robots
+Figure 1 ∣SmolVLA. SmolVLA consists of a compact pretrained vision-language model, discarding the last L −N layers (scissors icon).
+The remaining layers embed three inputs: (i) language instruction, (ii) RGB image(s), and (iii) robot sensorimotor state. Their merged
+tokens feed an Action Expert of alternating cross-attention (gold) and self-attention (light yellow) blocks, trained with flow matching to
+output n low-level actions chunk at, . . . , at+n. SmolVLA is pretrained on public community datasets and evaluated on low-cost robots.
+1
+
+
+===== PDF 第 2 页 =====
+
+1
+Introduction
+In recent years, the field has shifted towards the development of foundation models, generalist models capable of
+performing a wide range of tasks. A prominent example of this trend are large language models (LLMs), which have
+demonstrated performance comparable to the average human in understanding and generating natural language,
+reasoning over complex topics, and anchoring in knowledge (Brown et al., 2020; Achiam et al., 2023; Dubey et al., 2024;
+Team et al., 2023; Jiang et al., 2023). The success of text-based models has thus been extended to other modalities,
+sparking interest towards multi-modal vision-language (VLMs) (Alayrac et al., 2022; Chen et al., 2023; Huang et al.,
+2023; Liu et al., 2023b; Chen et al., 2024; Shukor et al., 2023b) and audio-language models (ALMs) (Défossez et al.,
+2024; Das et al., 2024; Borsos et al., 2023). While complementary in terms of modalities, such advances in developing
+multi-modal foundation models stem from (i) the adoption of scalable architectures, such as the Transformer (Vaswani,
+2017) and (ii) internet-scale training datasets.
+Despite their remarkable achievements in the digital world, real-world application of foundation models–particularly
+in robotics–remains limited. In particular, robotic policies (Zhao et al., 2023; Chi et al., 2024; Lee et al., 2024; Hansen
+et al., 2022) still face challenges in generalizing across object types, positions, environments, and tasks (Xie et al.,
+2024; Ebert et al., 2021). Robots should be able to adapt to new surroundings and new objects, which requires robust
+skills and common sense understanding of the world. Yet, the progress in this direction seems to be often limited by
+the availability of high-quality and diverse data.
+To address this limitation, a growing body of work has begun exploring robotics foundation models in the form of
+vision-language-action (VLA) models (Team et al., 2024; O’Neill et al., 2024; Brohan et al., 2023; Kim et al., 2024;
+Black et al., 2024; Bjorck et al., 2025; Li et al., 2024; Huang et al., 2024). VLAs are designed to incorporate abstract
+reasoning, world knowledge, and decision-making skills embedded in pretrained large language and vision-language
+models. These models take multimodal inputs–such as visual observations and natural language instructions–and
+predict the corresponding robotic actions. Early results suggest promising gains in generalization capabilities (Black
+et al., 2024; Brohan et al., 2023).
+VLA models remain in an early stage of development and are not yet as mature or widely adopted as LLMs and VLMs.
+Much of the impactful VLA progress remains proprietary, with many models sharing only weights while withholding
+full training details and essential methodological components. While effective in tackling academic benchmarks,
+we argue achieving human-level capabilities in robotics requires a stronger commitment to open-source efforts. In
+particular, transparent, reproducible open-source models and training recipes are crucial for accelerating progress
+and fostering broader participation within the robotics research community. We advocate for the development of
+affordable, efficient models that are accessible to a broader community. While encouraging efforts like OpenVLA (Kim
+et al., 2024) and RT-2-X (O’Neill et al., 2024) demonstrate the feasibility of open VLA systems, they remain large,
+resource-intensive, and dependent on costly robotic platforms, hindering accessibility.
+In this work, we introduce SmolVLA, an open-source initiative featuring a compact yet capable VLA model, released
+alongside reproducible and efficient training and inference recipes. Our contributions are as follows:
+• Lightweight architecture. We present SmolVLA, a compact and efficient vision-language agent optimized for
+training on consumer-grade GPUs and deployment on CPUs. Key design choices include: (i) skipping layers in the
+VLM, (ii) using a minimal number of visual tokens (iii) leveraging small pretrained VLMs, and (iv) interleaving
+self-attention layers with lighter cross-attention layers.
+• Pretraining on community-driven datasets. SmolVLA is trained end-to-end on fewer than 30k episodes drawn
+entirely from publicly available, community-contributed datasets, demonstrating strong performance while using an
+order of magnitude less data than prior art.
+• Asynchronous inference. We introduce an optimized asynchronous inference stack that decouples action execution
+from observation processing and action prediction, reducing latency and enabling fast, resource-efficient inference.
+We evaluate SmolVLA on both simulated environments and real-world settings on multiple tasks. Interestingly,
+although significantly smaller, SmolVLA matches or surpasses the performance of much larger VLA models.
+2
+Related work
+Vision-language models (VLMs).
+VLMs are designed to process both visual and textual modalities–most commonly
+by taking both images and text as input and generating text conditioned on the visual context. Recent advances in
+2

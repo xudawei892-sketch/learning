@@ -1,0 +1,52 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>笔记</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:17px/1.8 system-ui,"Microsoft YaHei",sans-serif;color:#243047;background:#fbfcff}h1,h2,h3{line-height:1.4;color:#122440}a{color:#1756ba;text-decoration:none}a:hover{text-decoration:underline}table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow:auto}td,th{border:1px solid #dbe1eb;padding:9px;text-align:left}th{background:#eaf0fa}pre{padding:16px;background:#edf1f7;overflow:auto;white-space:pre-wrap}code{font-size:.92em}blockquote{border-left:4px solid #7897cc;padding:8px 18px;background:#eef3fc}nav{padding-bottom:18px;border-bottom:1px solid #dbe1eb}.card{background:white;padding:16px 22px;border:1px solid #dbe1eb;border-radius:12px;margin:16px 0}li{margin:5px 0}footer{font-size:13px;color:#68758a;margin-top:45px}</style></head><body><nav><a href="../../index.html">← 返回资料首页</a></nav><h1 id="fast">FAST：中文入门导读</h1>
+<blockquote>
+<p><strong>性质：入门导读，不是全文精读。</strong> 已下载原始 PDF 并核对标题、摘要/首页；结合论文知识与可访问的官方项目资料整理。下文的局限与阅读问题包含导读分析，不全部是作者的原句。公式、图号和详细实验请继续对照全文。</p>
+</blockquote>
+<ul>
+<li>标题：FAST: Efficient Action Tokenization for Vision-Language-Action Models</li>
+<li>arXiv：<a href="https://arxiv.org/abs/2501.09747">2501.09747</a>；arXiv 编号所示月份：2025-01（不代表会议发表时间）</li>
+<li>类别：动作表示；阅读优先级：A（A 为主线重点，B 为背景/按方向选读）</li>
+<li>原始 PDF：<a href="paper.pdf">本地 paper.pdf</a> / <a href="https://arxiv.org/pdf/2501.09747">官方来源</a>；19 页，下载版本：2501.09747v1。</li>
+<li>代码/资源：https://github.com/Physical-Intelligence/fast</li>
+</ul>
+<p>核验依据：<a href="原文首页摘录.txt">原文首页摘录</a>（PDF 第 1–2 页）；原文图表以 PDF 为准。</p>
+<h2 id="_1">它要解决什么，为什么研究这个问题</h2>
+<p>逐个离散化高频动作块会产生太多 token，导致训练和推理低效。</p>
+<h2 id="_2">核心方法，用入门语言讲</h2>
+<p>用频域变换和压缩式 tokenization 表示动作序列，让自回归模型生成更紧凑的动作 token。</p>
+<h2 id="_3">在发展脉络中的位置</h2>
+<p>证明动作表示本身是 VLA 的关键设计变量，为 π0-FAST 等路线提供基础。</p>
+<h2 id="_4">适用边界与容易误解的地方</h2>
+<p>FAST 是动作 tokenizer；不是 π0 的 flow matching 动作头，也不天然保证所有任务更好。</p>
+<h2 id="_5">精读时必须回答的问题</h2>
+<p>DCT 为什么能压缩平滑动作？压缩误差、token 数和控制精度如何权衡？</p>
+<p>前置知识/建议先读：OpenVLA、ACT/ALOHA。</p>
+<p>第一次读：先读摘要、总览图、任务设定和结论；自己写一句「输入是什么、输出是什么、训练数据是什么」。第二次读：定位核心方法与训练目标；第三次读：查看泛化划分、基线与消融，判断作者究竟证明了什么。</p>
+<h2 id="_6">从原文核验的关键细节</h2>
+<p>对应本地 PDF 第 3–5 页，§III–V、Figure 3–4 与 Algorithm 1。</p>
+<ul>
+<li>对 H 步、D 维动作逐点分箱，会形成约 H×D 个离散 token；高频相邻动作相似，既冗余又可能让训练信号变弱。</li>
+<li>FAST 的顺序是：动作归一化 → 沿时间做 DCT → 系数量化 → 低频优先排列 → BPE 压缩 → 动作 token。</li>
+<li>DCT 是频域变换；量化带来误差。BPE 对已经量化的整数序列做压缩，不能把整个动作编码过程称为无损。</li>
+<li>Figure 3 的插值玩具实验固定底层信号，改变采样密度，用来分离数据复杂度与 tokenization 影响。</li>
+<li>FAST+ 是为了减少每个数据集重新训练 tokenizer 的摩擦而提供的通用 tokenizer。它是动作编码器，不是完整机器人策略。</li>
+</ul>
+<p><strong>对你最有用的结论：</strong> 比较动作模型时，不仅看 Transformer 参数量，还要看一个动作块产生多少 token、重建误差和有效执行频率。</p>
+<h2 id="_7">你的阅读记录（待填写）</h2>
+<ul>
+<li>阅读日期与 PDF 版本：</li>
+<li>观测输入（相机、语言、状态、历史）：</li>
+<li>动作输出（关节/末端、绝对/增量、频率、动作块）：</li>
+<li>训练数据与预训练来源：</li>
+<li>核心公式与符号含义（写页码）：</li>
+<li>关键图/表及它支持的结论（写页码）：</li>
+<li>泛化类型：物体 / 场景 / 任务 / 指令 / 机器人形态：</li>
+<li>与上一代的实质区别：</li>
+<li>一个消融说明了什么：</li>
+<li>我仍不明白的三个问题：</li>
+<li>值得复现的最小实验：</li>
+</ul>
+<h2 id="ai">给 AI 的精读提示</h2>
+<blockquote>
+<p>我正在读这篇论文。请只基于我提供的原文片段和图表，先忠实翻译，再解释动机、输入输出和符号；区分作者的结论与你的推测。指出证据的章节/页码。没有原文支持时明确说无法确认。不要替我编造实验数字。最后提出两个检查我是否理解的问题。</p>
+</blockquote><footer>VLA 入门资料包 · 本地离线阅读 · 论文及导读范围以说明为准</footer></body></html>

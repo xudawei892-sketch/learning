@@ -1,0 +1,243 @@
+来源：https://arxiv.org/pdf/2209.07753
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Code as Policies: Language Model Programs for Embodied Control
+Jacky Liang, Wenlong Huang, Fei Xia, Peng Xu, Karol Hausman, Brian Ichter, Pete Florence, Andy Zeng
+Robotics at Google
+Abstract—Large language models (LLMs) trained on code-
+completion have been shown to be capable of synthesizing simple
+Python programs from docstrings [1]. We find that these code-writing
+LLMs can be re-purposed to write robot policy code, given natural
+language commands. Specifically, policy code can express functions
+or feedback loops that process perception outputs (e.g., from object
+detectors [2], [3]) and parameterize control primitive APIs. When
+provided as input several example language commands (formatted
+as comments) followed by corresponding policy code (via few-shot
+prompting), LLMs can take in new commands and autonomously
+re-compose API calls to generate new policy code respectively. By
+chaining classic logic structures and referencing third-party libraries
+(e.g., NumPy, Shapely) to perform arithmetic, LLMs used in this way
+can write robot policies that (i) exhibit spatial-geometric reasoning,
+(ii) generalize to new instructions, and (iii) prescribe precise values
+(e.g., velocities) to ambiguous descriptions (“faster”) depending
+on context (i.e., behavioral commonsense). This paper presents
+Code as Policies: a robot-centric formulation of language model
+generated programs (LMPs) that can represent reactive policies (e.g.,
+impedance controllers), as well as waypoint-based policies (vision-
+based pick and place, trajectory-based control), demonstrated across
+multiple real robot platforms. Central to our approach is prompting
+hierarchical code-gen (recursively defining undefined functions),
+which can write more complex code and also improves state-of-the-
+art to solve 39.8% of problems on the HumanEval [1] benchmark.
+Code and videos are available at https://code-as-policies.github.io
+I. INTRODUCTION
+Robots that use language need it to be grounded (or situated)
+to reference the physical world and bridge connections between
+words, percepts, and actions [4]. Classic methods ground language
+using lexical analysis to extract semantic representations that
+inform policies [5]–[7], but they often struggle to handle unseen
+instructions. More recent methods learn the grounding end-to-end
+(language to action) [8]–[10], but they require copious amounts
+of training data, which can be expensive to obtain on real robots.
+Meanwhile, recent progress in natural language processing
+shows that large language models (LLMs) pretrained on Internet-
+scale data [11]–[13] exhibit out-of-the-box capabilities [14]–[16]
+that can be applied to language-using robots e.g., planning a
+sequence of steps from natural language instructions [16]–[18]
+without additional model finetuning. These steps can be grounded
+in real robot affordances from value functions among a fixed set
+of skills i.e., policies pretrained with behavior cloning or rein-
+forcement learning [19]–[21]. While promising, this abstraction
+prevents the LLMs from directly influencing the perception-action
+feedback loop, making it difficult to ground language in ways that
+(i) generalize modes of feedback that share percepts and actions
+e.g., from "put the apple down on the orange" to "put the apple
+down when you see the orange", (ii) express commonsense priors
+in control e.g., "move faster", "push harder", or (iii) comprehend
+spatial relationships "move the apple a bit to the left". As a result,
+incorporating each new skill (and mode of grounding) requires
+additional data and retraining – ergo the data burden persists,
+albeit passed to skill acquisition. This leads us to ask: how can
+  Large
+  Language
+  Model
+Policy Code
+block_names = detect_objects("blocks")
+bowl_names = detect_objects("bowls")
+for bowl_name in bowl_names:
+  if is_empty(bowl_name):
+    empty_bowl = bowl_name
+    break
+objs_to_stack = [empty_bowl] + block_names
+stack_objects(objs_to_stack)
+def is_empty(name):
+  ...
+Perception APIs 
+Control APIs
+User
+Stack the blocks on the empty bowl.
+def stack_objects(obj_names):
+  n_objs = len(obj_names)
+  for i in range(n_objs - 1):
+    obj0 = obj_names[i + 1]
+    obj1 = obj_names[i]
+    pick_place(obj0, obj1)
+Fig. 1: Given examples (via few-shot prompting), robots can use code-writing
+large language models (LLMs) to translate natural language commands into robot
+policy code which process perception outputs, parameterize control primitives,
+recursively generate code for undefined functions, and generalize to new tasks.
+LLMs be applied beyond just planning a sequence of skills?
+Herein, we find that code-writing LLMs [1], [11], [22] are
+proficient at going further: orchestrating planning, policy logic, and
+control. LLMs trained on code-completion have shown to be capa-
+ble of synthesizing Python programs from docstrings. We find that
+these models can be re-purposed to write robot policy code, given
+natural language commands (formatted as comments). Policy code
+can express functions or feedback loops that process perception
+outputs (e.g., open vocabulary object detectors [2], [3]) and param-
+eterize control primitive APIs (see Fig. 1). When provided with
+several example language commands followed by corresponding
+policy code (via few-shot prompting, in gray), LLMs can take in
+new commands (in green) and autonomously re-compose the API
+calls to generate new policy code (highlighted) respectively:
+# if you see an orange, move backwards.
+if detect_object("orange"):
+robot.set_velocity(x=-0.1, y=0, z=0)
+# move rightwards until you see the apple.
+while not detect_object("apple"):
+robot.set_velocity(x=0, y=0.1, z=0)
+Code-writing models can express a variety of arithmetic operations
+as well as feedback loops grounded in language. They not only
+generalize to new instructions, but having been trained on billions
+of lines of code and comments, can also prescribe precise values
+(e.g., velocities) to ambiguous descriptions ("faster" and "to the
+left") depending on context – to elicit behavioral commonsense:
+# do it again but faster, to the left, and with a banana.
+while not detect_object("banana"):
+robot.set_velocity(x=0, y=-0.2, z=0)
+Representing code as policies inherits a number of benefits from
+LLMs: not only the capacity to interpret natural language, but also
+the ability to engage in human-robot dialogue and Q&A simply
+by using "say(text)" as an available action primitive API:
+# tell me why you stopped moving.
+robot.say("I stopped moving because I saw a banana.")
+arXiv:2209.07753v4  [cs.RO]  25 May 2023
+
+
+===== PDF 第 2 页 =====
+
+User
+Take the coke can from the desk and put it in the middle 
+of the fruits on the table.
+User
+Wait until you see an egg and put it in the green plate
+User
+Draw a smaller pyramid a little bit to the left of the pyramid
+User
+Put the darkest object in the plate that has the apple
+User
+Draw a square around the sweeter fruit
+User
+Put away the coke can and the apple in their 
+corresponding bins
+(b)
+(c)
+(d)
+User
+Put the blocks in bowls with non-matching colors
+User
+Put the blocks in a vertical line 20 cm long and 10 
+cm below the blue bowl
+(a)
+Fig. 2: Code as Policies can follow natural language instructions across diverse domains and robots: table-top manipulation (a)-(b), 2D shape drawing (c), and mobile
+manipulation in a kitchen with robots from Everyday Robots (d). Our approach enables robots to perform spatial-geometric reasoning, parse object relationships, and form
+multi-step behaviors using off-the-shelf models and few-shot prompting with no additional training. See full videos and more tasks at code-as-policies.github.io
+We present Code as Policies (CaP): a robot-centric formulation
+of language model generated programs (LMPs) executed on real
+systems. Pythonic LMPs can express complex policies using:
+• Classic logic structures e.g., sequences, selection (if/else), and
+loops (for/while) to assemble new behaviors at runtime.
+• Third-party libraries to interpolate points (NumPy), analyze and
+generate shapes (Shapely) for spatial-geometric reasoning, etc.
+LMPs can be hierarchical: prompted to recursively define new
+functions, accumulate their own libraries over time, and self-
+architect a dynamic codebase. We demonstrate across several robot
+systems that LLMs can autonomously interpret language com-
+mands to generate LMPs that represent reactive low-level policies
+(e.g., PD or impedance controllers), and waypoint-based policies
+(e.g., for vision-based pick and place, or trajectory-based control).
+Our main contributions are: (i) code as policies: a formulation
+of using LLMs to write robot code, (ii) a method for hierarchical
+code-gen that improves state-of-the-art on both robotics and
+standard code-gen problems with 39.8% P@1 on HumanEval
+[1], (iii) a new benchmark to evaluate future language models on
+robotics code-gen problems, and (iv) ablations that analyze how
+CaP improves metrics of generalization [23] and that it abides
+by scaling laws – larger models perform better. Code as policies
+presents a new approach to linking words, percepts, and actions;
+enabling applications in human-robot interaction, but is not without
+limitations. We discuss these in Sec. V. Full prompts and generated
+outputs are in the Appendix, which can be found along with
+additional results, videos, and code at code-as-policies.github.io
+II. RELATED WORK
+Controlling robots via language has a long history, including
+early demonstrations of human-robot interaction through lexical
+parsing of natural language [5]. Language serves not only as an
+interface for non-experts to interact with robots [24], [25], but also
+as a means to compositionally scale generalization to new tasks [9],
+[17]. The literature is vast (we refer to Tellex et al. [4] and Luketina
+et al. [26] for comprehensive surveys), but recent works fall broadly
+into the categories of high-level interpretation (e.g., semantic
+parsing [25], [27]–[32]), planning [14], [17], [18], and low-level
+policies (e.g., model-based [33]–[35], imitation learning [8], [9],
+[36], [37], or reinforcement learning [38]–[42]). In contrast, our
+work focuses on the code generation aspect of LLMs and use the
+generated procedures as an expressive way to control the robot.
+Large language models exhibit impressive zero-shot reasoning
+capabilities: from planning [14] to writing math programs [43];
+from solving science problems [44] to using trained verifiers [45]
+for math word problems. These can be improved with prompting
+methods such as Least-to-Most [46], Think-Step-by-Step [15]
+or Chain-of-Thought [47]. Most closely related to this paper are
+works that use LLM capabilities for robot agents without additional
+model training. For example, Huang et al. decompose natural lan-
+guage commands into sequences of executable actions by text com-
+pletion and semantic translation [14], while SayCan [17] generates
+feasible plans for robots by jointly decoding an LLM weighted by
+skill affordances [20] from value functions. Inner Monologue [18]
+expands LLM planning by incorporating outputs from success de-
+tectors or other visual language models and uses their feedback to
+re-plan. Socratic Models [16] uses visual language models to sub-
+stitute perceptual information (in teal) into the language prompts
+that generate plans, and it uses language-conditioned policies e.g.,
+for grasping [36]. The following example illustrates the qualitative
+differences between our approach versus the aforementioned prior
+works. When tasked to "move the coke can a bit to the right":
+LLM Plan [14], [17], [18]
+1. Pick up coke can
+2. Move a bit right
+3. Place coke can
+Socratic Models Plan [16]
+objects = [coke can]
+1. robot.grasp(coke can) open vocab
+2. robot.place_a_bit_right()
+plans generated by prior works assume there exists a skill that
+allows the robot to move an object a bit right. Our approach differs
+in that it uses an LLM to directly generate policy code (plans
+nested within) to run on the robot and avoids the requirement of
+having predefined policies to map every step in the plan:
+Code as Policies (ours)
+while not obj_in_gripper("coke can"):
+robot.move_gripper_to("coke can")
+robot.close_gripper()
+pos = robot.gripper.position
+robot.move_gripper(pos.x, pos.y+0.1, pos.z)
+robot.open_gripper()
+Our approach (CaP) not only leverages logic structures to specify
+feedback loops, but it also parameterizes (and write parts of)
+low-level control primitives. CaP alleviates the need to collect data
+and train a fixed set of predefined skills or language-conditioned
+policies – which are expensive and often remain domain-specific.
+Code generation has been explored with LLMs [1], [48] and
+without [49]. Program synthesis has been demonstrated to be
+capable of drawing simple figures [50] and generating policies

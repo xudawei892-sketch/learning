@@ -1,0 +1,68 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>核心模型对照</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:17px/1.8 system-ui,"Microsoft YaHei",sans-serif;color:#243047;background:#fbfcff}h1,h2,h3{line-height:1.4;color:#122440}a{color:#1756ba;text-decoration:none}a:hover{text-decoration:underline}table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow:auto}td,th{border:1px solid #dbe1eb;padding:9px;text-align:left}th{background:#eaf0fa}pre{padding:16px;background:#edf1f7;overflow:auto;white-space:pre-wrap}code{font-size:.92em}blockquote{border-left:4px solid #7897cc;padding:8px 18px;background:#eef3fc}nav{padding-bottom:18px;border-bottom:1px solid #dbe1eb}.card{background:white;padding:16px 22px;border:1px solid #dbe1eb;border-radius:12px;margin:16px 0}li{margin:5px 0}footer{font-size:13px;color:#68758a;margin-top:45px}</style></head><body><nav><a href="index.html">← 返回资料首页</a></nav><h1 id="_1">核心模型怎么对照着读</h1>
+<p>先理解三个独立问题：<strong>语义主干从哪里来，动作怎样表示，动作怎样生成。</strong> 参数量并不能代替这三项。</p>
+<table>
+<thead>
+<tr>
+<th>模型/方法</th>
+<th>语义与视觉来源</th>
+<th>动作表示与生成</th>
+<th>为什么值得读</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RT-1</td>
+<td>图像与语言条件，加机器人多任务训练</td>
+<td>离散动作、Transformer 预测</td>
+<td>规模化多任务机器人学习的入口</td>
+</tr>
+<tr>
+<td>RT-2</td>
+<td>预训练 VLM，机器人与视觉语言任务联合适配</td>
+<td>动作 token、自回归</td>
+<td>网络语义知识迁移到控制的主线</td>
+</tr>
+<tr>
+<td>OpenVLA</td>
+<td>Prismatic：DINOv2 + SigLIP + Llama 2</td>
+<td>逐维动作分箱、自回归 token</td>
+<td>开放基线，理解动作与 VLM 的接口</td>
+</tr>
+<tr>
+<td>Octo</td>
+<td>语言/目标图像条件，多机器人预训练</td>
+<td>扩散动作头、模块化 Transformer</td>
+<td>理解通用策略不只有大型 VLM 一种架构</td>
+</tr>
+<tr>
+<td>π0</td>
+<td>PaliGemma 初始化，加动作专家</td>
+<td>连续动作块、flow matching</td>
+<td>语义与连续高频动作结合</td>
+</tr>
+<tr>
+<td>FAST</td>
+<td>不指定唯一语义主干，是动作编码方法</td>
+<td>DCT + 量化 + BPE，服务自回归策略</td>
+<td>动作表示怎样改变训练与推理</td>
+</tr>
+<tr>
+<td>OpenVLA-OFT</td>
+<td>适配 OpenVLA</td>
+<td>并行连续动作块，核心配方采用 L1 回归</td>
+<td>高效微调和部署不只靠换大模型</td>
+</tr>
+<tr>
+<td>π0.5</td>
+<td>基于 π0，异构任务与数据共同训练</td>
+<td>高层语义与低层动作结合</td>
+<td>开放世界、新环境与长程操作</td>
+</tr>
+</tbody>
+</table>
+<p>OpenVLA 的方法细节参考本地 PDF 第 4–5 页；π0 第 3–6 页；FAST 第 3–5 页；OFT 第 3–4 页。本轮已阅读核对这些方法页。其他条目主要基于原文摘要/首页及官方项目文档，后续精读应进一步确认所有细节。</p>
+<h2 id="_2">两个最常见的误解</h2>
+<p>「模型内有 action token」不一定意味着离散动作。连续动作也可以先投影成网络处理的 token；关键看输出和训练目标。π0 的连续动作专家与 OpenVLA 的离散词表生成是不同机制。</p>
+<p>「一次预测一段动作」也不等于必须整段开环执行。实际可以执行前几步、重新观测再预测。要同时记录预测窗口和执行窗口。</p>
+<h2 id="_3">如果你只先精读五篇</h2>
+<p>推荐 <strong>RT-2、OpenVLA、Diffusion Policy、π0、OpenVLA-OFT</strong>。遇到数据泛化问题补 Open X-Embodiment，遇到动作块问题补 ACT，遇到动作 token 问题补 FAST，准备仿真时补 LIBERO。</p><footer>VLA 入门资料包 · 本地离线阅读 · 论文及导读范围以说明为准</footer></body></html>

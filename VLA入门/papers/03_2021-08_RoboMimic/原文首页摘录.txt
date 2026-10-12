@@ -1,0 +1,101 @@
+来源：https://arxiv.org/pdf/2108.03298
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+What Matters in Learning from Ofﬂine Human
+Demonstrations for Robot Manipulation
+Ajay Mandlekar1, Danfei Xu1, Josiah Wong1, Soroush Nasiriany2, Chen Wang1,
+Rohun Kulkarni1, Li Fei-Fei1, Silvio Savarese1, Yuke Zhu2, Roberto Martín-Martín1
+1Stanford University, 2The University of Texas at Austin
+Abstract: Imitating human demonstrations is a promising approach to endow
+robots with various manipulation capabilities. While recent advances have been
+made in imitation learning and batch (ofﬂine) reinforcement learning, a lack of
+open-source human datasets and reproducible learning methods make assessing
+the state of the ﬁeld difﬁcult. In this paper, we conduct an extensive study of
+six ofﬂine learning algorithms for robot manipulation on ﬁve simulated and three
+real-world multi-stage manipulation tasks of varying complexity, and with datasets
+of varying quality. Our study analyzes the most critical challenges when learn-
+ing from ofﬂine human data for manipulation. Based on the study, we derive a
+series of lessons including the sensitivity to different algorithmic design choices,
+the dependence on the quality of the demonstrations, and the variability based
+on the stopping criteria due to the different objectives in training and evaluation.
+We also highlight opportunities for learning from human datasets, such as the
+ability to learn proﬁcient policies on challenging, multi-stage tasks beyond the
+scope of current reinforcement learning methods, and the ability to easily scale
+to natural, real-world manipulation scenarios where only raw sensory signals
+are available. We have open-sourced our datasets and all algorithm implementa-
+tions to facilitate future research and fair comparisons in learning from human
+demonstration data. Codebase, datasets, trained models, and more available at
+https://arise-initiative.github.io/robomimic-web/
+Keywords: Imitation Learning, Ofﬂine Reinforcement Learning, Manipulation
+1
+Introduction
+Human supervision has been at the heart of the most signiﬁcant recent advances in several domains
+such as computer vision [1–4] and natural language processing [5–7]. By intelligently extracting
+information from large-scale human-labeled datasets, autonomous machines have been able to
+reach near- or even super-human performance on decades-old problems such as image recognition
+and question answering. Roboticists have also attempted to tackle robot manipulation through
+learning from human datasets, using the paradigms of Imitation Learning [8–10] and Batch (Ofﬂine)
+Reinforcement Learning [11–13], where datasets consisting of robot arm trajectories, action labels at
+each timestep, and possibly reward labels, are used to train closed-loop policies.
+As in other domains, large ofﬂine datasets offer several beneﬁts such as scale, portability, and
+reproducible evaluations to measure progress. Recently, there has been considerable progress in
+ofﬂine learning for robot manipulation from human demonstrations [9, 14, 10]. Despite these
+advances, the ofﬂine learning paradigm has not been nearly as disruptive in robotics as in other
+disciplines – there is a large gap between autonomous robot manipulation capabilities and the wide
+range of tasks that humans can solve effortlessly using physical and cognitive intelligence. What has
+inhibited the use of large human-provided datasets to address this gap?
+In contrast to other domains where supervised learning has been successful, robotic manipulation
+is a time-evolving dynamical system, requiring ﬁne-grained real-time control to guide robot arms
+successfully through tasks – consequently, data collection can present technical challenges requiring
+arXiv:2108.03298v2  [cs.RO]  25 Sep 2021
+
+
+===== PDF 第 2 页 =====
+
+(a) Lift
+(b) Can
+(c) Tool Hang
+(d) Square
+(e) Lift (Real)
+(f) Can (Real)
+(g) Tool Hang (Real)
+(h) Transport
+Figure 1: Tasks. We collect datasets across 6 operators of varying proﬁciency and evaluate ofﬂine policy
+learning methods on 8 challenging manipulation tasks that test a wide range of manipulation capabilities
+including pick-and-place, multi-arm coordination, and high-precision insertion and assembly.
+specialized systems [15], which can explain why large-scale human-provided datasets [16, 17] have
+not been very prevalent. Learning from such datasets can also present several challenges. Human
+demonstrations can differ from machine-generated datasets (a recent trend in benchmarks for ofﬂine
+policy learning [18, 19]) due to a non-Markovian decision process, since humans may not act purely
+based on the current observation. There can also be signiﬁcant variance in both data quality and
+solution strategy when collecting data from multiple humans [20]. Differences from classic supervised
+learning, such as a mismatch between training and evaluation objectives (task success rate), can make
+selecting a ﬁnal policy challenging [21, 22], especially in real-world settings where evaluating each
+policy on a robot can be infeasible. Finally, ofﬂine learning is sensitive to state and action space
+coverage (dataset size) and agent design decisions.
+Studying these challenges in the context of robot manipulation and human-provided datasets could be
+a stepping stone to closing the gap between robot and human manipulation capabilities. Unfortunately,
+a lack of suitable benchmark and human datasets have made studying this setting difﬁcult. Prior
+works are either limited to studying simple 2D environments [23] or using data generated from
+hard-coded policies [24, 25]. In this paper, we address this need by presenting a study of data-driven
+ofﬂine policy learning methods on several human-provided robot manipulation datasets. We collect
+task demonstrations from human teleoperators across a broad range of simulated and real world
+manipulation tasks and investigate several factors that play a role in learning from such data.
+From our results, we point out several lessons to guide future research in leveraging human supervision
+for robot manipulation effectively. We ﬁnd that history-dependent models can be extremely effective
+in learning from single and multi-human datasets while state-of-the-art batch RL algorithms struggle
+to learn from such datasets, and that the choice of observation space and hyperparameters play a
+substantial role in training proﬁcient policies. We also ﬁnd that there is substantial promise for
+solving more complex tasks using large-scale human datasets and that our insights directly transfer to
+real-world scenarios, making this an important setting to explore further.
+2
+Challenges in Ofﬂine Learning from Human Datasets
+In this section, we outline ﬁve challenges in ofﬂine learning from human datasets that motivate
+different factors that we investigate in our study.
+(C1) Data from Non-Markovian Decision Process. Human demonstrations can differ substantially
+from machine-generated demonstrations because humans may not act purely based on a single current
+observation. External factors (teleoperation device, past actions, history of episode) may all play a
+role. Prior work [20] has noted substantial beneﬁts from leveraging models that are history-dependent
+and / or with temporal abstraction to learn from human demonstrations. We investigate various design
+choices related to such architectures in this study.
+2

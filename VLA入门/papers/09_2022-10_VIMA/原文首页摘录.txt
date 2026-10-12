@@ -1,0 +1,170 @@
+来源：https://arxiv.org/pdf/2210.03094
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+VIMA: General Robot Manipulation with Multimodal Prompts
+Yunfan Jiang 1 Agrim Gupta 1 † Zichen Zhang 2 † Guanzhi Wang 3 4 † Yongqiang Dou 5 Yanjun Chen 1
+Li Fei-Fei 1 Anima Anandkumar 3 4 Yuke Zhu 3 6 ‡ Linxi Fan 3 ‡
+Abstract
+Prompt-based learning has emerged as a suc-
+cessful paradigm in natural language processing,
+where a single general-purpose language model
+can be instructed to perform any task specified by
+input prompts. Yet task specification in robotics
+comes in various forms, such as imitating one-
+shot demonstrations, following language instruc-
+tions, and reaching visual goals. They are often
+considered different tasks and tackled by special-
+ized models. We show that a wide spectrum of
+robot manipulation tasks can be expressed with
+multimodal prompts, interleaving textual and vi-
+sual tokens. Accordingly, we develop a new sim-
+ulation benchmark that consists of thousands of
+procedurally-generated tabletop tasks with mul-
+timodal prompts, 600K+ expert trajectories for
+imitation learning, and a four-level evaluation
+protocol for systematic generalization. We de-
+sign a transformer-based robot agent, VIMA, that
+processes these prompts and outputs motor ac-
+tions autoregressively. VIMA features a recipe
+that achieves strong model scalability and data
+efficiency. It outperforms alternative designs in
+the hardest zero-shot generalization setting by up
+to 2.9× task success rate given the same train-
+ing data. With 10× less training data, VIMA
+still performs 2.7× better than the best competing
+variant. Code and video demos are available at
+vimalabs.github.io.
+1. Introduction
+Transformer models (Vaswani et al., 2017) have given rise
+to remarkable multi-task consolidation across many AI do-
+mains. For example, users can describe a task using natural
+language prompt to GPT-3 (Brown et al., 2020), allowing
+1Stanford University; 2Macalester College, now at Allen Insti-
+tute for AI; 3NVIDIA; 4Caltech; 5Tsinghua; 6UT Austin. Work
+done during the first author’s internship at NVIDIA. †: Equal
+contribution. ‡: Equal advising.
+the same model to perform question answering, machine
+translation, text summarization, etc. Prompt-based learning
+provides an accessible and flexible interface to communicate
+a natural language understanding task to a general-purpose
+model.
+We envision that a generalist robot should have a similarly in-
+tuitive and expressive interface for task specification. What
+does such an interface for robot learning look like? As a
+motivating example, consider a personal robot tasked with
+household activities. We can ask the robot to bring us a cup
+of water by a simple natural language instruction. If we
+require more specificity, we can instead instruct the robot to
+“bring me <image of the cup>”. For tasks requiring
+new skills, the robot should be able to adapt, preferably
+from a few video demonstrations (Duan et al., 2017). Tasks
+that need interaction with unfamiliar objects can be eas-
+ily explained via a few image examples for novel concept
+grounding (Hermann et al., 2017). Finally, to ensure safe
+deployment, we can further specify visual constraints like
+“do not enter <image> room”.
+To enable a single agent with all these capabilities, we make
+three key contributions in this work: 1) a novel multimodal
+prompting formulation that converts a wide spectrum of
+robot manipulation tasks into one sequence modeling prob-
+lem; 2) a large-scale benchmark with diverse tasks to
+systematically evaluate an agent’s scalability and generaliza-
+tion; and 3) a multimodal-prompted robot agent capable
+of multi-task and zero-shot generalization.
+We start with the observation that many robot manipu-
+lation tasks can be formulated by multimodal prompts
+that interleave language and images or video frames
+(Fig. 1). For example, Rearrangement (Batra et al., 2020),
+a type of Visual Goal, can be formulated as “Please re-
+arrange objects to match this {scene image}”; Few-
+shot Imitation can embed video snippet in the prompt
+“Follow this motion trajectory for the wooden cube:
+{frame1}, {frame2}, {frame3}, {frame4}”.
+Multi-
+modal prompts not only have more expressive power than
+individual modalities but also enable a uniform sequence
+IO interface for training generalist robots. Previously, dif-
+ferent robot manipulation tasks required distinct policy ar-
+chitectures, objective functions, data pipelines, and training
+1
+arXiv:2210.03094v2  [cs.RO]  28 May 2023
+
+
+===== PDF 第 2 页 =====
+
+VIMA: General Robot Manipulation with Multimodal Prompts
+Rearrange objects to match this scene:
+Follow this motion for
+This is a blicket
+This is a wug
+Put a wug into a blicket
+Sweep all
+into
+without exceeding
+One-shot Demonstration
+Visual Goal: Rearrangement
+Visual Constraint
+Novel Concept Grounding
+VIMA
+Text token
+Object token
+Padding
+:
+Figure 1: Multimodal prompts for task specification. We observe that many robot manipulation tasks can be expressed as
+multimodal prompts that interleave language and image/video frames. We introduce VIMA, an embodied agent capable of
+processing mulitimodal prompts (left) and controlling a robot arm to solve the task (right).
+procedures (Aceituno et al., 2021; Stengel-Eskin et al., 2022;
+Lynch & Sermanet, 2021), leading to siloed robot systems
+that cannot be easily combined for a rich set of use cases. In-
+stead, our multimodal prompt interface allows us to harness
+the latest advances in large transformer models (Lin et al.,
+2021; Tay et al., 2020; Khan et al., 2021) for developing
+scalable multi-task robot learners.
+To systematically evaluate agents with multimodal prompts,
+we develop a new benchmark, named VIMA-BENCH, built
+on the Ravens simulator (Zeng et al., 2020; Shridhar et al.,
+2021). We provide 17 representative tasks with multimodal
+prompt templates. Each task can be procedurally instanti-
+ated into thousands of instances by various combinations of
+textures and tabletop objects. VIMA-BENCH establishes a
+four-level protocol to evaluate progressively stronger gener-
+alization capabilities, from randomized object placement to
+novel tasks (Fig. 2).
+To this end, we introduce the VisuoMotor Attention agent
+(VIMA) to learn robot manipulation from multimodal
+prompts.
+The model architecture follows the encoder-
+decoder transformer design proven to be effective and scal-
+able in NLP (Raffel et al., 2020). VIMA encodes an input se-
+quence of interleaving textual and visual prompt tokens with
+a pre-trained language model (Tsimpoukelli et al., 2021)
+and decodes robot control actions autoregressively for each
+environment interaction step. The transformer decoder is
+conditioned on the prompt via cross-attention layers that
+alternate with the usual causal self-attention. Instead of
+operating on raw images, VIMA adopts an object-centric
+approach. We parse all images in the prompt or observa-
+tion into objects by off-the-shelf then domain fine-tuned
+detectors (He et al., 2017) and flatten them into sequences
+of object tokens. To demonstrate the scalability of VIMA,
+we train a spectrum of 7 models ranging from 2M to 200M
+parameters. Our approach outperforms other design alterna-
+tives, such as image patch tokens (Reed et al., 2022), image
+Perceiver (Jaegle et al., 2021b; Alayrac et al., 2022), and
+decoder-only conditioning (Radford et al., 2018). VIMA
+obtains consistent performance gains across all four levels
+of zero-shot generalization and all model capacities, in some
+cases by a large margin (up to 2.9× task success rate given
+the same amount of training data, and 2.7× better even
+with 10× less data). We open-source the simulation envi-
+ronment, training dataset, algorithm code, and pre-trained
+model checkpoints to ensure reproducibility and facilitate fu-
+ture work from the community. These materials along with
+video demos are available at vimalabs.github.io.
+2. Multimodal Prompts for Task Specification
+A central and open problem in robot learning is task specifi-
+cation (Agrawal, 2022). In prior literature (Stepputtis et al.,
+2020; Dasari & Gupta, 2020; Brunke et al., 2021b), differ-
+ent tasks often require diverse and incompatible interfaces,
+resulting in siloed robot systems that do not generalize well
+2

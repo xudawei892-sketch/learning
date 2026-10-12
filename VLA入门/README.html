@@ -1,0 +1,46 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>README</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:17px/1.8 system-ui,"Microsoft YaHei",sans-serif;color:#243047;background:#fbfcff}h1,h2,h3{line-height:1.4;color:#122440}a{color:#1756ba;text-decoration:none}a:hover{text-decoration:underline}table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow:auto}td,th{border:1px solid #dbe1eb;padding:9px;text-align:left}th{background:#eaf0fa}pre{padding:16px;background:#edf1f7;overflow:auto;white-space:pre-wrap}code{font-size:.92em}blockquote{border-left:4px solid #7897cc;padding:8px 18px;background:#eef3fc}nav{padding-bottom:18px;border-bottom:1px solid #dbe1eb}.card{background:white;padding:16px 22px;border:1px solid #dbe1eb;border-radius:12px;margin:16px 0}li{margin:5px 0}footer{font-size:13px;color:#68758a;margin-top:45px}</style></head><body><nav><a href="index.html">← 返回资料首页</a></nav><h1 id="vla">VLA 入门资料包</h1>
+<p>从零开始，先理解机器人怎样把「看见、听懂」变成「能执行的动作」，再读主线论文，最后进入仿真。</p>
+<p><strong>当前状态：32 篇原始 PDF 已全部取得，中文导读、编年史、领域地图与阅读计划已建立。</strong> 每篇目录都有 <code>paper.pdf</code>、<code>笔记.md</code> 和原文首页摘录。笔记已核对原文标题、摘要/首页，定位为入门导读，尚未逐页精读所有论文。详细状态见 <a href="下载状态.html">下载状态</a>。</p>
+<h2 id="_1">从哪里开始</h2>
+<ol>
+<li>花 30 分钟读 <a href="快速入门与编年史.html">快速入门与编年史</a>，理解几条研究路线。</li>
+<li>对照 <a href="领域地图.html">领域地图</a>、<a href="术语表.html">术语表</a> 和 <a href="核心模型对照.html">核心模型对照</a>，先弄清输入、动作表示、数据和评测。</li>
+<li>按 <a href="三周阅读计划.html">三周阅读计划</a> 阅读；不要顺序硬啃所有 32 篇。</li>
+<li>到 <a href="论文目录.html">论文目录</a> 打开某篇的中文导读，再对照原文阅读；用 <a href="阅读进度.csv">阅读进度.csv</a> 记录自己的问题。</li>
+<li>学完核心论文后，参考 <a href="simulation/README.html">仿真路线</a> 选择一个最小实验。</li>
+</ol>
+<h2 id="_2">文件结构</h2>
+<pre><code class="language-text">VLA入门/
+├── README.md
+├── 快速入门与编年史.md
+├── 领域地图.md
+├── 术语表.md
+├── 核心模型对照.md
+├── 三周阅读计划.md
+├── 论文目录.md
+├── 阅读进度.csv
+├── manifest.json             # 原文链接、相对路径、下载状态、SHA-256
+├── references.bib            # 题名与 arXiv/项目链接，未编造作者信息
+├── 下载状态.md
+├── papers/                   # 32 篇，每篇一个目录
+│   └── 编号_月份_简称/
+│       ├── 笔记.md
+│       ├── paper.pdf         # 原始论文 PDF
+│       └── 原文首页摘录.txt    # PDF 前两页自动提取，辅助查证
+├── sources/                  # 可访问的官方项目 README 快照与出处
+├── tools/download_papers.py  # 无第三方依赖，支持断点续跑
+└── simulation/README.md      # 后续仿真建议，尚未安装或执行
+</code></pre>
+<h2 id="pdf">获取原始 PDF</h2>
+<p>本轮初次访问曾受网络策略拦截，加入 <code>arxiv.org</code> 和 <code>export.arxiv.org</code> 的配置草稿后，后续实际请求成功，32 篇 PDF 均已取得。31 篇来自 arXiv，ALOHA Unleashed 来自作者项目的官方 PDF。草稿已保存，但本轮未发布环境配置；后续新环境的访问能力需要在发布后验证。</p>
+<p>在仓库目录执行：</p>
+<pre><code class="language-bash">cd /workspace/learning
+python3 VLA入门/tools/download_papers.py --probe
+python3 VLA入门/tools/download_papers.py --workers 3
+</code></pre>
+<p>只下某一篇：<code>python3 VLA入门/tools/download_papers.py --only 2406.09246</code>。网络不通时先 probe，不要重复批量发送注定失败的请求。下载器保留 TLS 验证，检查 PDF 文件头和结尾、长度并记录 SHA-256。哈希用于后续完整性检查，不是作者签名认证。默认使用来源当前提供的版本，记录实际响应 URL 与下载时间；本轮另从 PDF 提取版本标识和页数写入清单。未指定固定 v1，也不声称未来重新下载必然得到同一个版本。</p>
+<p>本轮不批量下载 LaTeX 源码、权重和训练数据，也不启动仿真；你本轮要求的是入门文献资料。代码入口已记录，官方 README 快照已保存，<strong>完整源码仓库没有克隆</strong>。</p>
+<h2 id="_3">范围与证据</h2>
+<p>收录范围是 2020–2025 的代表性主线及背景资料，其中一些是数据/评测论文、一些是语言规划或视觉策略，并非全部都是现代端到端 VLA。它是新手阅读起点，<strong>不是截至 2026 年 10 月的完整最新综述，也不是按引用量评出的 32 篇经典排名</strong>。</p>
+<p>每篇都给出动机、方法、贡献、边界、精读问题和前置知识。尚未核验的指标、公式与图号不写成事实。官方项目 README 只是辅助证据，可能比论文更新；来源与核验范围见 <a href="sources/README.html">资料来源</a>。原文已下载并核对标题、摘要/首页与版本标识；后续精读方法和实验，再将对应笔记升级为精读笔记。</p>
+<p>视频本身未能访问；本资料包按你贴出的文字与本次要求组织，没有声称复制到视频评论区中的 research-workflow 仓库。</p><footer>VLA 入门资料包 · 本地离线阅读 · 论文及导读范围以说明为准</footer></body></html>

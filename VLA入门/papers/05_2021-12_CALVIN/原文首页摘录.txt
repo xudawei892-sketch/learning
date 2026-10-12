@@ -1,0 +1,190 @@
+来源：https://arxiv.org/pdf/2112.03227
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+IEEE ROBOTICS AND AUTOMATION LETTERS. PREPRINT VERSION. ACCEPTED MAY, 2022
+1
+CALVIN: A Benchmark for Language-Conditioned
+Policy Learning for Long-Horizon Robot
+Manipulation Tasks
+Oier Mees∗1, Lukas Hermann∗1, Erick Rosete-Beas1, Wolfram Burgard2
+http://calvin.cs.uni-freiburg.de
+Fig. 1: CALVIN is a benchmark to learn many long-horizon language-conditioned tasks over a range of four manipulation environments, designed
+to be diverse yet carry shared structure, from multimodal onboard sensor observations. In the most difﬁcult evaluation, the methods must generalize
+to unseen entities by training on a large interaction corpora covering three environments and testing on an unseen scene.
+Abstract—General-purpose robots coexisting with humans in
+their environment must learn to relate human language to
+their perceptions and actions to be useful in a range of daily
+tasks. Moreover, they need to acquire a diverse repertoire of
+general-purpose skills that allow composing long-horizon tasks
+by following unconstrained language instructions. In this paper,
+we present CALVIN (Composing Actions from Language and
+Vision), an open-source simulated benchmark to learn long-
+horizon language-conditioned tasks. Our aim is to make it possi-
+ble to develop agents that can solve many robotic manipulation
+tasks over a long horizon, from onboard sensors, and speciﬁed
+only via human language. CALVIN tasks are more complex
+in terms of sequence length, action space, and language than
+existing vision-and-language task datasets and supports ﬂexible
+speciﬁcation of sensor suites. We evaluate the agents in zero-
+shot to novel language instructions and to novel environments.
+We show that a baseline model based on multi-context imitation
+learning performs poorly on CALVIN, suggesting that there
+is signiﬁcant room for developing innovative agents that learn
+to relate human language to their world models with this
+benchmark.
+Manuscript received: February, 23, 2022; Accepted May, 22, 2022.
+This paper was recommended for publication by Associate Editor S.
+Chernova and Editor D. Kulic upon evaluation of the reviewers’ comments.
+∗Equal contribution.1University of Freiburg, Germany.2University of Tech-
+nology Nuremberg, Germany. meeso@informatik.uni-freiburg.de
+Digital Object Identiﬁer (DOI): see top of this page.
+© 2022 IEEE. Personal use of this material is permitted. Permission from
+IEEE must be obtained for all other uses, in any current or future media,
+including reprinting/republishing this material for advertising or promotional
+purposes, creating new collective works, for resale or redistribution to servers
+or lists, or reuse of any copyrighted component of this work in other works.
+Index Terms—Data Sets for Robot Learning, Machine Learning
+for Robot Control, Imitation Learning, Natural Dialog for HRI
+I. INTRODUCTION
+A
+LONG-STANDING goal for robotics and embodied
+agents is to build systems that can perform tasks speciﬁed
+in natural language. Concepts expressed in natural language
+provide humans with an intuitive way to represent, summarize,
+and abstract diverse knowledge skills. By means of abstraction,
+concepts such as “open the drawer and push the middle
+object into the drawer” can be extended to a potentially
+inﬁnite set of new and unseen entities. Additionally, humans
+leverage concepts to describe complex tasks as sequences of
+natural language instructions. This stands in contrast to current
+robots, which typically lack this generalization ability and learn
+individual tasks one at a time. Moreover, multi-task learning
+approaches traditionally assume that tasks are speciﬁed to the
+agent at test time via mechanisms such as goal images [1]
+and one-hot skill selectors [2], [3] that are not practical for
+non-expert users to instruct robots in everyday real-world
+settings. As robots become ubiquitous across human-centered
+environments the need for intuitive task speciﬁcation grows:
+how can we scale robot learning systems to autonomously
+acquire general-purpose knowledge that allows them to com-
+pose long-horizon tasks by following unconstrained language
+instructions?
+arXiv:2112.03227v4  [cs.RO]  13 Jul 2022
+
+
+===== PDF 第 2 页 =====
+
+2
+IEEE ROBOTICS AND AUTOMATION LETTERS. PREPRINT VERSION. ACCEPTED MAY, 2022
+To address this problem we present CALVIN, a new open-
+source simulated benchmark that links human language to
+robot motor skills, behaviors, and objects in interactive vi-
+sual environments. In this setting, a single agent must solve
+complex manipulation tasks by understanding a series of
+unconstrained language expressions in a row, e.g., “open the
+drawer . . . pick up the blue block ...push the block into the
+drawer . . . open the sliding door”. Furthermore, to evaluate
+the agents’ ability for long-horizon planning, agents in this
+scenario are expected to be able to perform any combination
+of subtasks in any order. CALVIN has been developed from the
+ground up to support training, prototyping, and validation of
+language-conditioned continuous control policies over a range
+of four indoor manipulation environments, visualized in Figure
+1. CALVIN includes ∼24 hours teleoperated unstructured play
+data together with 20K language directives. Unscripted playful
+interactions have the advantage of being task-agnostic, diverse,
+and relatively cheap to obtain [1], [4]. The simulation platform
+supports a range of sensors commonly utilized for visuomotor
+control: RGB-D images from both a static and a gripper
+camera, proprioceptive information, and vision-based tactile
+sensing [5]. We believe that this ﬂexible sensor suite will allow
+researchers to develop improved multimodal agents that can
+solve many tasks in real-world settings. This is the ﬁrst public
+benchmark of instruction following, to our knowledge, that
+combines: natural language conditioning, multimodal high-
+dimensional inputs, 7-DOF continuous control, and long-
+horizon robotic object manipulation. We provide an evalua-
+tion protocol with evaluation modes of varying difﬁculty by
+choosing different combinations of sensor suites and amounts
+of training environments. This effort joins the recent efforts to
+standardize robotics research for better benchmarks and more
+reproducible results. To open the door for future development
+of agents that can generalize abstract concepts to unseen enti-
+ties the same way humans do, we include a challenging zero-
+shot evaluation by training on large play corpora covering three
+environments and testing on an unseen scene. The language
+instructions used for testing are not included in the training
+set and represent novel ways of describing the manipulation
+tasks seen during training.
+To establish baseline performance levels, we evaluate the
+multi-context imitation learning (MCIL) approach that uses
+relabeled imitation learning to distill many reusable behaviors
+into a goal-directed policy [6]. This model is not effective
+on the complex long horizon robot manipulation tasks in
+CALVIN. While it achieves up to 53.9% success rate in short
+horizon tasks, it performs poorly in the long-horizon setting.
+We note that there is no constraint to use imitation learning
+approaches to solve CALVIN tasks, as approaches that use
+reinforcement learning to learn language-conditioned policies
+can also be applied [7].
+In summary, CALVIN facilitates learning models that trans-
+late from language to sequences of motor skills in a realis-
+tic simulation environment. This benchmark captures many
+challenges present in real-world settings for relating human
+language to robot actions and perception for accomplishing
+long-horizon manipulation tasks. Models that can overcome
+these challenges will begin to close the gap towards scalable,
+general-purpose, language-driven robotics.
+II. RELATED WORK
+Natural language processing has recently received much at-
+tention in the ﬁeld of robotics [8], following the advances made
+towards learning groundings between vision and language [9],
+[10]. Recent successes in human-robot interaction include an
+interactive fetching system to localize objects mentioned in
+referring expressions [11]–[15] or grounding not only objects,
+but also spatial relations to follow language expressions char-
+acterizing pick-and-place commands [16]–[18]. By contrast,
+CALVIN tasks require grounding language to a wide variety of
+general-purpose robot skills. Prior work on mapping language
+and vision to actions has been studied mostly in restricted
+environments [19], [20] and simpliﬁed actuators with discrete
+motion primitives [21]–[23]. A growing body of work also
+looks at learning language-conditioned policies for contin-
+uous visuomotor-control in 3D environments via imitation
+learning [6], [24], [25] or reinforcement learning [7], [26],
+[27]. These approaches typically require ofﬂine data sources
+of robotic interaction, such as teleoperation or autonomous
+exploration data, together with post-hoc crowd-sourced lan-
+guage labels. However, the lack of standardized benchmarks
+and algorithm implementations, makes it difﬁcult to compare
+approaches and to facilitate future research.
+The most closely related benchmark to ours is AL-
+FRED [22], which contains language instructions for combined
+navigation and manipulation tasks with seven predeﬁned action
+primitives. In CALVIN, rather than classifying predeﬁned
+actions, the agent must learn to acquire a diverse repertoire
+of general-purpose skills that allows composing long-horizon
+tasks by following unconstrained language instructions in
+closed loop control. Our tabletop environments are inspired
+by the one shown in Lynch et al. [6] in order to have a
+fair comparison to their MCIL approach, which we imple-
+ment to establish baseline performance levels. We note that
+although considered a state-of-the-art approach, no public
+implementation of MCIL is available. In contrast to their work,
+CALVIN contains more subtasks (34 vs 18), longer long-
+horizon evaluation sequences (5 vs 4), provides a range of
+sensors commonly utilized for visuomotor control and allows
+testing zero-shot generalization by leveraging a range of four
+manipulation environments and unseen language instructions.
+Finally, CALVIN goes beyond the original MCIL setup by
+adding a challenging visual grounding problem, where similar
+language instructions for differently colored blocks are given
+and the agent needs to identify which block is meant.
+III. CALVIN
+The aim of the CALVIN benchmark is to evaluate the learn-
+ing of long-horizon language-conditioned continuous control
+policies. In this setting, a single agent must solve complex
+manipulation tasks by understanding a series of unconstrained
+language expressions in a row, e.g., “open the drawer...pick
+up the blue block...now push the block into the drawer...now
+open the sliding door”. We note that in the benchmark we

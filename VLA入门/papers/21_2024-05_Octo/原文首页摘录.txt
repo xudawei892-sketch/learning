@@ -1,0 +1,195 @@
+来源：https://arxiv.org/pdf/2405.12213
+PDF 第 1–2 页自动提取；排版、公式可能有提取误差，请以 PDF 为准。
+
+Octo: An Open-Source Generalist Robot Policy
+Octo Model Team
+Dibya Ghosh∗,1
+Homer Walke∗,1
+Karl Pertsch∗,1,2
+Kevin Black∗,1
+Oier Mees∗,1
+Sudeep Dasari3
+Joey Hejna2
+Tobias Kreiman1 Ria Doshi1 Charles Xu1
+Jianlan Luo1
+You Liang Tan1
+Lawrence Yunliang Chen1 Pannag Sanketi4 Quan Vuong4 Ted Xiao4
+Dorsa Sadigh2
+Chelsea Finn2
+Sergey Levine1
+1UC Berkeley 2Stanford 3Carnegie Mellon University 4Google Deepmind
+https://octo-models.github.io
+Generalist Robot Policy
+Flexible Task Definitions
+Goal Image
+Language  
+Instruction
+Flexible Observations
+Wrist & 3rd Person 
+Camera
+Proprio
+Flexible Action Spaces
+Joint Control
+End-Effector Control
+WidowX Rearrange
+UR5 Table Top
+Berkeley Insertion
+Stanford Coffee
+Efficient Finetuning with new observation + action spaces
+Octo
+Out-of-the-box Multi-Robot Control
+800k Robot Trajectories
+RT-1 Robot
+CMU Baking
+Berkeley Bimanual
+Fig. 1: We introduce Octo, an open-source, generalist policy for robotic manipulation. Octo is a transformer-based policy pretrained on 800k
+diverse robot episodes from the Open X-Embodiment dataset [67]. It supports flexible task and observation definitions and can be quickly
+finetuned to new observation and action spaces.
+Abstract—Large policies pretrained on diverse robot datasets
+have the potential to transform robotic learning: instead of
+training new policies from scratch, such generalist robot policies
+may be finetuned with only a little in-domain data, yet generalize
+broadly. However, to be widely applicable across a range of
+robotic learning scenarios, environments, and tasks, such policies
+need to handle diverse sensors and action spaces, accommodate a
+variety of commonly used robotic platforms, and finetune readily
+and efficiently to new domains. In this work, we aim to lay
+the groundwork for developing open-source, widely applicable,
+generalist policies for robotic manipulation. As a first step, we
+introduce Octo, a large transformer-based policy trained on
+800k trajectories from the Open X-Embodiment dataset, the
+largest robot manipulation dataset to date. It can be instructed
+via language commands or goal images and can be effectively
+finetuned to robot setups with new sensory inputs and action
+spaces within a few hours on standard consumer GPUs. In
+experiments across 9 robotic platforms, we demonstrate that Octo
+serves as a versatile policy initialization that can be effectively
+finetuned to new observation and action spaces. We also perform
+detailed ablations of design decisions for the Octo model, from
+architecture to training data, to guide future research on building
+generalist robot models.
+I. INTRODUCTION
+The common approach for robotic learning is to train policies
+on datasets collected for the specific robot and task at hand.
+Learning from scratch in this way requires significant data
+collection effort for each task, and the resulting policies usually
+exhibit only narrow generalization. In principle, collected
+∗Lead authors, ordered alphabetically, see Section A for list of contributions.
+Correspondence to {dibya.ghosh, homer_walke, pertsch, kvablack,
+oier.mees}@berkeley.edu
+arXiv:2405.12213v2  [cs.RO]  26 May 2024
+
+
+===== PDF 第 2 页 =====
+
+experience from other robots and tasks offers a possible
+solution, exposing models to a diverse set of robotic control
+problems that may improve generalization and performance on
+downstream tasks. However, even as general-purpose models
+become ubiquitous in natural language [68, 88]) and computer
+vision [76, 44], it has proven challenging to build the analogous
+“general-purpose robot model” that can control many robots
+for many tasks. Training a unified control policy in robotics
+presents unique challenges, requiring handling different robot
+embodiments, sensor setups, action spaces, task specifications,
+environments, and compute budgets.
+Towards this direction, several works have proposed robotic
+foundation models that directly map robot observations to
+actions and provide zero-shot or few-shot generalization to new
+domains and robots. We broadly refer to these models as “gen-
+eralist robot policies” (GRPs), emphasizing their ability to per-
+form low-level visuomotor control across tasks, environments,
+and robotic systems [75, 9, 23, 103, 10, 81, 1, 91, 35, 94, 45].
+For example, the GNM model [80] generalizes across different
+robotic navigation scenarios, the RoboCat model [9] handles
+different robot embodiments for goal-conditioned tasks, and
+the RT-X model [67] performs language-conditioned manipu-
+lation across five robot embodiments. Although these models
+represent significant steps toward a true “general-purpose robot
+model,” they have been limited in multiple important aspects:
+they typically constrain downstream users to a pre-defined
+and often restrictive set of input observations, e.g., a single
+camera stream; they lack support for effective finetuning to
+new domains; and importantly, the largest of these models are
+not available to the general public.
+We design a system for pretraining generalist robot policies
+more suitable for the diversity of interfaces in downstream
+robotic applications. The core of our model is a transformer
+architecture that maps arbitrary input tokens (created from
+observations and tasks) to output tokens (then decoded into
+actions), which can be trained on a diverse dataset of robots
+and tasks. With no additional training, this policy can accept
+different camera configurations (e.g., workspace or wrist
+cameras), can control different robots, and can be guided via
+either language commands or goal images — all by simply
+changing which tokens are fed into the model. Most importantly,
+the model can be adapted to new robot setups with new sensory
+inputs, action spaces, or morphologies by adding appropriate
+adapters and finetuning with a small target domain dataset and
+an accessible compute budget.
+Our primary contribution is Octo, a transformer-based policy
+pretrained on the largest robot manipulation dataset to date:
+800k robot demonstrations from the Open X-Embodiment
+dataset [67]. Octo is the first GRP that can be effectively
+finetuned to new observations and action spaces and the first
+generalist robot manipulation policy that is fully open-source,
+including the training pipeline, model checkpoints, and data.
+Finally, while the individual components that comprise Octo
+— a transformer backbone, support for both language and goal
+image specification, and a diffusion head to model expressive
+action distributions — have been discussed in prior work, the
+particular combination of these components into a powerful
+generalist robot policy is unique and novel.
+We demonstrate through extensive experiments on 9 robots
+across 4 institutions that our combined system leads to state-
+of-the-art performance for out-of-the-box multi-robot control
+for single and dual-arm manipulation tasks and that Octo can
+be used as an effective initialization for finetuning to unseen
+setups with new observation and action spaces. In the process,
+we carefully study the effect of different design decisions
+when pretraining GRPs; we evaluate how the choice of data
+distribution, model architecture, and policy formulation affects
+the quality of the pretrained GRP. Our evaluation highlights
+the utility of scale and flexibility: our best models are those
+trained on the widest data mixtures, with the least restrictive
+inductive biases, and with policy objectives that can fit the
+diversity of behaviors in the pretraining data.
+Along with this paper, we release all resources required
+to train, use, reproduce, and finetune an Octo model. We
+provide pretrained Octo model checkpoints with 27M and 93M
+parameters that, out of the box, support multiple RGB camera
+inputs as well as both language and goal image task speci-
+fication. We also provide scripts for finetuning these models
+on new domains, as well as our complete pretraining pipeline,
+including optimized data loaders, transformer implementations
+for multimodal inputs, and tools to monitor training progress.
+II. RELATED WORK
+Many works train policies using a large dataset of trajectories
+collected from a robot, from early efforts using autonomous
+data collection for scaling policy training [71, 48, 41, 19, 27,
+30] to more recent efforts that explore the combination of
+modern transformer-based policies with large demonstration
+datasets [10, 40, 98, 28, 83, 86]. These works primarily focus
+on a single embodiment, while Octo trains policies on robot
+datasets assembled across multiple embodiments, increasing
+the effective size of the training dataset and allowing finetuning
+to a range of robot setups.
+More recently, papers have focused on broadening the gen-
+eralization abilities of robot policies. Multiple works leverage
+diverse non-robot data or pretrained vision-language foundation
+models to boost policy generalization to new scenes and
+tasks [86, 103, 96, 16, 38, 11, 84, 36, 4, 37, 7, 3, 46, 15, 23].
+More closely related to Octo are recent works that train robot
+policies across data from multiple robot embodiments: the
+GNM model [81, 80] generalizes across robot navigation setups
+while RoboCat [9] and RT-X [67] control multiple single-arm
+manipulation robots. While these models deliver impressive
+policy learning results, a key issue is their lack of flexibility:
+they typically require users to stick to the sensory inputs
+and action space used during pretraining and do not support
+adaptation to new observation and action spaces. Furthermore,
+the largest models are not publicly accessible. Octo differs
+from these works in multiple aspects: it is trained on a larger
+and more diverse robot data mix, it supports a wider range of
+downstream applications via efficient finetuning to new robot
+setups, and it is fully open source and reproducible.

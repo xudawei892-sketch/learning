@@ -1,0 +1,56 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>README</title><style>body{max-width:1050px;margin:40px auto;padding:0 24px;font:17px/1.8 system-ui,"Microsoft YaHei",sans-serif;color:#243047;background:#fbfcff}h1,h2,h3{line-height:1.4;color:#122440}a{color:#1756ba;text-decoration:none}a:hover{text-decoration:underline}table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow:auto}td,th{border:1px solid #dbe1eb;padding:9px;text-align:left}th{background:#eaf0fa}pre{padding:16px;background:#edf1f7;overflow:auto;white-space:pre-wrap}code{font-size:.92em}blockquote{border-left:4px solid #7897cc;padding:8px 18px;background:#eef3fc}nav{padding-bottom:18px;border-bottom:1px solid #dbe1eb}.card{background:white;padding:16px 22px;border:1px solid #dbe1eb;border-radius:12px;margin:16px 0}li{margin:5px 0}footer{font-size:13px;color:#68758a;margin-top:45px}</style></head><body><nav><a href="../index.html">← 返回资料首页</a></nav><h1 id="_1">学完之后的最小仿真路线</h1>
+<p>此目录目前是规划，<strong>没有安装环境、下载权重、训练模型或运行仿真</strong>。本轮只完成阅读前的资料准备。</p>
+<h2 id="_2">推荐次序</h2>
+<ol>
+<li>先跑一个仿真环境自带示例，理解 observation、action、reset、step、终止和成功判据。不要立即下载多个大型模型。</li>
+<li>如果动作学习本身还不清楚，先做 ACT 的 Transfer Cube 或一个已有 BC 基线，观察动作块与闭环执行。</li>
+<li>想进入 VLA，优先考虑 <strong>LIBERO + OpenVLA/OpenVLA-OFT 的官方预训练评测流程</strong>；先复现一个套件的少量回合，再扩大到正式评测。</li>
+<li>明确基础流程后再考虑 openpi 的 LIBERO 示例。不同路线单独环境管理，按官方版本锁定依赖。</li>
+</ol>
+<h2 id="_3">开始前必须确定的事项</h2>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>需要确认</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>目标</td>
+<td>纯推理评测还是微调？先选一个，不同时开展多个模型</td>
+</tr>
+<tr>
+<td>资源</td>
+<td>GPU 型号、可用显存、驱动、磁盘、权重下载权限</td>
+</tr>
+<tr>
+<td>版本</td>
+<td>代码 commit、环境版本、数据版本、模型权重与动作归一化键</td>
+</tr>
+<tr>
+<td>接口</td>
+<td>相机数量、图像尺寸、本体状态、动作坐标系和控制频率</td>
+</tr>
+<tr>
+<td>评测</td>
+<td>任务、种子、每任务回合数、最大步数、成功判据</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>成功率、逐任务统计、失败轨迹视频、环境与模型版本记录</td>
+</tr>
+</tbody>
+</table>
+<p>官方 OpenVLA-OFT README 在本轮访问时列出 LIBERO 推理约需 16 GB 显存、ALOHA 推理约需 18 GB；训练配置需求另有范围。<strong>这是某项目文档的参考，不是所有 VLA 的通用显存门槛</strong>。准备实际运行时要以对应 commit、精度、输入和设备测试为准。</p>
+<h2 id="_4">第一轮实验应该输出什么</h2>
+<p>保留至少一段成功轨迹和一段失败轨迹（如果有失败），写清试了多少回合。单个成功视频只能证明存在成功案例；不能声称达到论文平均成功率。固定观察、种子和评测参数后，再改变动作块或执行步数研究行为差异。</p>
+<p>代码入口：</p>
+<ul>
+<li><a href="https://github.com/tonyzhaozh/act">ACT</a>：<code>sim_env.py</code>、<code>policy.py</code>、<code>imitate_episodes.py</code>。</li>
+<li><a href="https://github.com/Lifelong-Robot-Learning/LIBERO">LIBERO</a>。</li>
+<li><a href="https://github.com/openvla/openvla">OpenVLA</a>：先读官方 README 的 LIBERO 与微调部分。</li>
+<li><a href="https://github.com/moojink/openvla-oft">OpenVLA-OFT</a>：先读 <code>SETUP.md</code> 与官方评测说明。</li>
+<li><a href="https://github.com/Physical-Intelligence/openpi">openpi</a>：先读 <code>examples/libero/README.md</code>，核对配置与权重版本。</li>
+</ul>
+<p>此处没有给未经执行的安装指令盖上「已验证」标签，也没有克隆代码仓库。等你决定开始仿真时，再基于可用硬件完成真正的环境安装和验证。</p><footer>VLA 入门资料包 · 本地离线阅读 · 论文及导读范围以说明为准</footer></body></html>
